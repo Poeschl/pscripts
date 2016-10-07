@@ -200,4 +200,8 @@ fi
 arch-chroot /mnt mkdir -p /boot/grub/locale
 arch-chroot /mnt cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 
+#UEFI Fallback
+arch-chroot /mnt cp -r /boot/efi/EFI/refind/* /boot/efi/EFI/boot/
+arch-chroot /mnt mv /boot/efi/EFI/boot/refind_x64.efi /boot/efi/EFI/boot/boot_x64.efi
+
 echo "Exit installed system. Please reboot now to switch to your fresh arch linux."
