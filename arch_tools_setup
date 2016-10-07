@@ -1,0 +1,180 @@
+#!/bin/bash
+
+
+echo "This will install some tools on your system:"
+echo "* yaourt"
+echo "* System tools"
+echo "* Desktop Environment"
+echo "* Development Environment"
+
+read -p "Are you sure you want that? [yn]" -r
+echo    # move to a new line
+if [[ $REPLY != ^[Yy]$ ]]
+then
+  exit 1
+fi
+
+currentUser=$(whoami)
+echo "Current user: $currentUser"
+
+echo "We need root access for basic tools installation."
+
+su root
+#Careful now
+
+echo "Install base-devel..."
+pacman -Sq base-devel
+
+echo "Update repros..."
+pacman -Syy
+
+echo "Install sudo..."
+pacman -Sq sudo
+
+
+#make the group wheel ready to use with sudo
+groupadd wheel
+echo "wheel  ALL=(ALL) ALL" >> /etc/sudoers
+#make a proxy available for sudo
+echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
+echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
+
+logout
+# phuuuu, relax now
+sudo gpasswd -a $currentUser wheel
+sudo passwd -l root
+
+echo "Install yaourt..."
+cd /tmp
+curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
+tar -xvzf package-query.tar.gz
+cd package-query
+makepkg -si
+cd ..
+curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
+tar -xvzf yaourt.tar.gz
+cd yaourt
+makepkg -si
+
+sudo yaourt -Syy
+
+echo "Install oh-my-zsh with plugins..."
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sed -i 's/robbyrussell/gentoo/g' ~/.zshrc
+sed -i 's/plugins=(git)/plugins=(git sudo adb gradle archlinux history)/g' ~/.zshrc
+mkdir ~/bin
+echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
+
+echo "Install Reflector..."
+#Reflector for mirrorlist refreshing
+sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+sudo yaourt -Sq reflector-timer-weekly
+
+sudo sed -i '/--country/d' /etc/reflector.conf
+sudo echo "--country Germany" >> /etc/reflector.conf
+
+sudo systemctl enable reflector.timer
+sudo systemctl start reflector.service
+
+echo "Install nano..."
+sudo pacman -Sq nano
+echo "export EDITOR=nano" >> /etc/zsh/zshenv
+echo "alias sudo='sudo '" >> /etc/zsh/zshenv
+
+echo "Configure NTP..."
+sudo pacman -Sq ntp
+
+sudo sed -i.bak '/server/d' /etc/ntp.conf
+sudo echo "server 0.de.pool.ntp.org" >> /etc/ntp.conf
+sudo echo "server 1.de.pool.ntp.org" >> /etc/ntp.conf
+sudo echo "server 2.de.pool.ntp.org" >> /etc/ntp.conf
+sudo echo "server 3.de.pool.ntp.org" >> /etc/ntp.conf
+
+#prevent the machine from being a time server
+sudo sed -i.bak '/restrict/d' /etc/ntp.conf
+sudo echo "restrict default nomodify nopeer" >> /etc/ntp.conf
+sudo echo "restrict 127.0.0.1" >> /etc/ntp.conf
+
+sudo systemctl enable ntpd.service
+
+read -p "Is the system running in a virtualbox environment? [yn]" -r
+echo    # move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  sudo pacman -Sq virtualbox-guest-modules-arch virtualbox-guest-utils
+  sudo systemctl enable vboxservice.service
+else
+  echo "Skipping virtualbox additions"
+fi
+
+echo "Install lightdm and gtk-greeter..."
+sudo pacman -Sq lightdm lightdm-gtk-greeter
+sudo systemctl enable lightdm.service
+
+desktopEnv=""
+until [ -n "$desktopEnv" ]; do
+echo "Which desktop environment you want to have installed ?"
+echo "1] Cinnamon"
+echo "2] Xfce 4"
+read -n 1 desktopSelection
+echo #new line
+case $desktopSelection in
+    1 )
+      echo "Install Cinnamon..."
+      sudo pacman -Sq cinnamon
+      desktopEnv="cinnamon"
+      ;;
+    2 )
+      echo "Install Xfce..."
+      sudo pacman -Sq xfce4
+      desktopEnv="xfce"
+      ;;
+esac
+done
+
+echo "Install Material Look..."
+sudo yaourt -Sq paper-icon-theme adapta-gtk-theme ttf-roboto
+
+case "$desktopEnv" in
+  "cinnamon" )
+    gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
+    gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
+    gsettings set org.cinnamon.theme name "Adapta-Nokto"
+  "xfce" )
+    xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
+    xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
+esac
+
+echo "Install gedit..."
+sudo pacman -Sq gedit
+
+echo "Install google-chrome..."
+sudo yaourt -Sq google-chrome
+
+echo "Install atom..."
+sudo pacman -Sq atom
+
+echo "Install JDK 8..."
+sudo pacman -Sq jdk8-openjdk
+
+echo "Install IDEA Community Edition..."
+sudo pacman -Sq intellij-idea-community-edition
+
+echo "Install Android-SDK..."
+sudo yaourt -Sq android-sdk
+sudo groupadd androidsdk
+sudo gpasswd -a $currentUser androidsdk
+sudo chown -R :sdkusers /opt/android-sdk/
+sudo chmod -R g+w /opt/android-sdk/
+export ANDROID_HOME=/opt/android-sdk
+echo "export ANDROID_HOME=/opt/android-sdk" >> ~/.zshenv
+$ANDROID_HOME/tools/android update sdk --no-ui
+
+echo "Install ADB..."
+sudo pacman -Sq android-tools
+sudo gpasswd -a $currentUser adbusers
+
+echo "Install Android Studio..."
+sudo yaourt -Sq android-studio
