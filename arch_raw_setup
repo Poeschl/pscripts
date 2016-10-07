@@ -166,15 +166,14 @@ EOF
 
 echo "Install GRUB..."
 arch-chroot /mnt/ mount -t efivarfs efivarfs /sys/firmware/efi/efivars
-arch-chroot /mnt/ pacman -S grub efibootmgr dosfstools
+arch-chroot /mnt/ pacman -Sq grub efibootmgr dosfstools
 
 arch-chroot /mnt/ grub-mkconfig -o /boot/grub/grub.cfg
 
 arch-chroot /mnt/ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck --debug
 
-if [ $? -eq 0 ]
+if [ ! $? -eq 0 ]
 then
-else
   echo "Error on create boot menu entry, trying again with efibootmgr..."
   arch-chroot /mnt/ efibootmgr -q -c -d ${installDev} -p 1 -w -L "GRUB: Arch-Linux" -l "\EFI\arch_grub\grubx64.efi"
 fi
