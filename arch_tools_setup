@@ -14,34 +14,43 @@ then
   exit 1
 fi
 
+echo "We need root access for basic tools installation."
+
+
+echo "Setup working user..."
+
+#make the group wheel ready to use with sudo
+sudo groupadd wheel
+sudo echo "wheel  ALL=(ALL) ALL" >> /etc/sudoers
+#make a proxy available for sudo
+sudo echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
+sudo echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
+
+read -s -p "Username of new user:[archi] " -r
+echo    # move to a new line
+userName="archi"
+if [ ! -z $REPLY ];
+then
+  userName=$REPLY
+fi
+
+read -s -p "Password for new user:[love] " -r
+echo    # move to a new line
+userPass="love"
+if [ ! -z $REPLY ];
+then
+  userPass=$REPLY
+fi
+
+sudo useradd -m -G wheel -s /bin/bash $userName
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | sudo passwd
+  $userPass # password
+  $userPass # second time
+EOF
+
 currentUser=$(whoami)
 echo "Current user: $currentUser"
 
-echo "We need root access for basic tools installation."
-
-su root
-#Careful now
-
-echo "Install base-devel..."
-pacman -Sq base-devel
-
-echo "Update repros..."
-pacman -Syy
-
-echo "Install sudo..."
-pacman -Sq sudo
-
-
-#make the group wheel ready to use with sudo
-groupadd wheel
-echo "wheel  ALL=(ALL) ALL" >> /etc/sudoers
-#make a proxy available for sudo
-echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
-echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
-
-logout
-# phuuuu, relax now
-sudo gpasswd -a $currentUser wheel
 sudo passwd -l root
 
 echo "Install yaourt..."
