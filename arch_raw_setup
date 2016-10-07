@@ -1,0 +1,196 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo "This will install linux arch with following settings:"
+echo "* Install it in UEFI mode"
+echo "* partitions with LVM"
+echo "  1. partition: UEFI (512 MB)"
+echo "  2. partition: SWAP (1.5 times your RAM)"
+echo "  3. partition: ROOT (user-defined)"
+echo "  4. partition: HOME (user-defined)"
+echo "* German keyboard and locale"
+
+read -p "Are you sure you want that? [yn]" -r
+echo    # move to a new line
+if [[ $REPLY != ^[Yy]$ ]]
+then
+  exit 1
+fi
+
+if [ ! -d "/sys/firmware/efi" ]; then
+  echo "{$RED}Not booted in UEFI mode! Please reboot with UEFI enabled."
+  exit 1
+else
+  echo "{$GREEN}UEFI mode enabled"
+fi
+
+ping -q -c5 archlinux.com > /dev/null
+if [ $? -eq 0 ]
+then
+	echo "{$GREEN}Internet available"
+else
+  echo "{$RED}No internet available, please check the connectivity and try again!"
+  exit 1
+fi
+
+read -p "Is there a proxy between you and the internet? [yn]" -r
+echo    # move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  read -p "Enter the address of the proxy:" -r
+  echo    # move to a new line
+  export http_proxy=$REPLY
+  export https_proxy=$REPLY
+fi
+
+read -p "Please specify the device to format and install arch on: [/dev/sda]" -r
+echo    # move to a new line
+installDev="/dev/sda"
+if [ ! -z $REPLY ];
+then
+  installDev=$REPLY
+fi
+
+echo "{$CYAN}Set german keyboard..."
+loadkeys de-latin1
+
+echo "{$CYAN}Partition harddisk..."
+ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo |  | grep -o --regexp "[0-9]*"`
+swapSize=`expr $ramSize + $ramSize / 2`
+
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
+  n # new
+  1 # first partition
+    # default start sector
+  +512M # 512 MB UEFI partition
+  EF00 # UEFI type
+  n # new
+  2 # first partition
+    # default start sector
+  +$swapSize # 512 MB UEFI partition
+  8200 # SWAP type
+  n # new
+  3 # first partition
+    # default start sector
+    # default end sector (all free space)
+  8300 # linux filesystem
+  p # print the in-memory partition table
+  w # write the partition table
+  y # accept changes
+EOF
+
+read -p "How big should the root partition be: [20G]" -r
+echo    # move to a new line
+rootPartSize="20G"
+if [ ! -z $REPLY ];
+then
+  rootPartSize=$REPLY
+fi
+
+pvcreate ${installDev}3
+vgcreate lvm ${installDev}3
+lvcreate --name root -L${rootPartSize} lvm # root partition
+lvcreate --name home -l100%FREE lvm  # home partition
+lvscan
+
+echo "{$CYAN}Format partitions..."
+
+mkfs.fat -F 32 ${installDev}1
+mkswap -L swap ${installDev}2
+mkfs.ext4 -L root /dev/lvm/root
+mkfs.ext4 -L home /dev/lvm/home
+
+echo "{$CYAN}Mount partitions..."
+
+mount /dev/lvm/root /mnt # root
+mkdir /mnt/home
+mount /dev/lvm/home /mnt/home # home
+mkdir -p /mnt/boot
+mount ${installDev} /mnt/boot # EFI
+
+swapon -L swap
+
+echo "{$CYAN}Install Arch linux to disk..."
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
+
+pacstrap /mnt base base-devel
+
+echo "{$CYAN}Generate fstab..."
+genfstab -Lp /mnt > /mnt/etc/fstab
+cat /mnt/etc/fstab
+
+echo "{$CYAN}Switching to installed system.."
+arch-chroot /mnt/
+
+echo "{$CYAN}Config system..."
+
+read -p "Hostname: [arch]" -r
+echo    # move to a new line
+hostname="arch"
+if [ ! -z $REPLY ];
+then
+  hostname=$REPLY
+fi
+
+echo $hostname > /etc/hostname
+
+echo LANG=de_DE.UTF-8 > /etc/locale.conf
+echo LC_COLLATE=C >> /etc/locale.conf
+echo LANGUAGE=de_DE >> /etc/locale.conf
+
+ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+
+cp /etc/locale.gen /etc/locale.gen.bak
+sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
+sed -i 's/#de_DE ISO-8859-1/de_DE ISO-8859-1/g' /etc/locale.gen
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+locale-gen
+
+#Short switch back to install system to get mirrorlist
+exit
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+arch-chroot /mnt/
+
+pacman -Sy
+
+mkinitcpio -p linux
+
+echo "{$CYAN}Install GRUB..."
+
+read -s -p "Root password: [arch]" -r
+echo    # move to a new line
+rootPass="arch"
+if [ ! -z $REPLY ];
+then
+  rootPass=$REPLY
+fi
+
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
+  $rootPass # password
+  $rootPass # second time
+EOF
+
+echo "{$CYAN}Install GRUB..."
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+pacman -S grub efibootmgr dosfstools
+
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck --debug
+
+if [ $? -eq 0 ]
+then
+else
+  echo "{$RED}Error on create boot menu entry, trying again with efibootmgr..."
+  efibootmgr -q -c -d ${installDev} -p 1 -w -L "GRUB: Arch-Linux" -l '\EFI\arch_grub\grubx64.efi'
+fi
+
+mkdir -p /boot/grub/locale
+cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "{$CYAN}Exit installed system. Please reboot now to switch to your fresh arch linux."
