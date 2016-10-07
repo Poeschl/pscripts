@@ -14,17 +14,17 @@ then
   exit 1
 fi
 
-echo "We need root access for basic tools installation."
-
+read -p "Is a proxy setup needed?[yn] " -r
+echo    # move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  read -p "Enter the address of the proxy:" -r
+  echo    # move to a new line
+  export http_proxy=$REPLY
+  export https_proxy=$REPLY
+fi
 
 echo "Setup working user..."
-
-#make the group wheel ready to use with sudo
-sudo groupadd wheel
-sudo echo "wheel  ALL=(ALL) ALL" >> /etc/sudoers
-#make a proxy available for sudo
-sudo echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
-sudo echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
 read -s -p "Username of new user:[archi] " -r
 echo    # move to a new line
