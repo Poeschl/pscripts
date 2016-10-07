@@ -4,7 +4,7 @@ echo "This will install linux arch with following settings:"
 echo "* Install it in UEFI mode"
 echo "* partitions with LVM"
 echo "  1. partition: UEFI (512 MB)"
-echo "  2. partition: SWAP (1.5 times your RAM)"
+echo "  2. partition: SWAP (1.25 times your RAM)"
 echo "  3. partition: ROOT (user-defined)"
 echo "  4. partition: HOME (user-defined)"
 echo "* German keyboard and locale"
@@ -23,7 +23,7 @@ else
   echo "UEFI mode enabled"
 fi
 
-ping -q -c5 archlinux.org > /dev/null
+ping -q -c2 archlinux.org > /dev/null
 if [ $? -eq 0 ]
 then
 	echo "Internet available"
@@ -32,7 +32,7 @@ else
   exit 1
 fi
 
-read -p "Is there a proxy between you and the internet?[yn] " -r
+read -p "Is a proxy setup needed?[yn] " -r
 echo    # move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -55,7 +55,10 @@ loadkeys de-latin1
 
 echo "Partition harddisk..."
 ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
-swapSize=`expr $ramSize + $ramSize / 2`
+swapSize=`expr $ramSize / 4`
+swapSize=`expr $ramSize + $swapSize`
+swapSize=`expr $swapSize / 1024`
+echo "Estimated SWAP size: $swapSize MiB"
 
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   n # new
@@ -66,7 +69,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   n # new
   2 # first partition
     # default start sector
-  +{$swapSize}k # 512 MB UEFI partition
+  +$swapSize"M" # SWAP size
   8200 # SWAP type
   n # new
   3 # first partition
