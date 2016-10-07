@@ -118,9 +118,9 @@ mount ${installDev}1 /mnt/boot # EFI
 swapon -L swap
 
 echo "Install Arch linux to disk..."
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-wget -O /etc/pacman.d/mirrorlist https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on
-sed -i '/s/^#Server/Server/' /etc/pacman.d/mirrorlist
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on"
+sed -i "/s/#Server/Server/" /etc/pacman.d/mirrorlist
 
 pacstrap /mnt base base-devel
 
