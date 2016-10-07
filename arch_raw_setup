@@ -58,7 +58,8 @@ ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "
 swapSize=`expr $ramSize / 4`
 swapSize=`expr $ramSize + $swapSize`
 swapSize=`expr $swapSize / 1024`
-echo "Estimated SWAP size: $swapSize MiB"
+swapSize+="M"
+echo "Estimated SWAP size: $swapSize"
 
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   n # new
@@ -69,7 +70,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   n # new
   2 # first partition
     # default start sector
-  +$swapSize"M" # SWAP size
+  +$swapSize # SWAP size
   8200 # SWAP type
   n # new
   3 # first partition
