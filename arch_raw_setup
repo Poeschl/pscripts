@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function exeOnInstall {
+    arch-chroot /mnt $1
+}
+
 echo "This will install linux arch with following settings:"
 echo "* Install it in UEFI mode"
 echo "* partitions with LVM"
@@ -82,9 +86,9 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   y # accept changes
 EOF
 
-read -p "How big should the root partition be:[20G] " -r
+read -p "How big should the root partition be:[10G] " -r
 echo    # move to a new line
-rootPartSize="20G"
+rootPartSize="10G"
 if [ ! -z $REPLY ];
 then
   rootPartSize=$REPLY
@@ -106,10 +110,10 @@ mkfs.ext4 -L home /dev/lvm/home
 echo "Mount partitions..."
 
 mount /dev/lvm/root /mnt # root
-mkdir /mnt/home
+mkdir -p /mnt/home
 mount /dev/lvm/home /mnt/home # home
 mkdir -p /mnt/boot
-mount ${installDev} /mnt/boot # EFI
+mount ${installDev}1 /mnt/boot # EFI
 
 swapon -L swap
 
@@ -134,33 +138,33 @@ then
   hostname=$REPLY
 fi
 
-arch-chroot /mnt echo $hostname > /etc/hostname
+exeOnInstall echo $hostname > /etc/hostname
 
-arch-chroot /mnt echo LANG=de_DE.UTF-8 > /etc/locale.conf
-arch-chroot /mnt echo LC_COLLATE=C >> /etc/locale.conf
-arch-chroot /mnt echo LANGUAGE=de_DE >> /etc/locale.conf
+exeOnInstall echo LANG=de_DE.UTF-8 > /etc/locale.conf
+exeOnInstall echo LC_COLLATE=C >> /etc/locale.conf
+exeOnInstall echo LANGUAGE=de_DE >> /etc/locale.conf
 
-arch-chroot /mnt ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+exeOnInstall ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-arch-chroot /mnt cp /etc/locale.gen /etc/locale.gen.bak
-arch-chroot /mnt sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
-arch-chroot /mnt sed -i 's/#de_DE ISO-8859-1/de_DE ISO-8859-1/g' /etc/locale.gen
-arch-chroot /mnt sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-arch-chroot /mnt locale-gen
+exeOnInstall cp /etc/locale.gen /etc/locale.gen.bak
+exeOnInstall sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
+exeOnInstall sed -i 's/#de_DE ISO-8859-1/de_DE ISO-8859-1/g' /etc/locale.gen
+exeOnInstall sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+exeOnInstall locale-gen
 
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
-arch-chroot /mnt pacman -Sy
+exeOnInstall pacman -Sy
 
 #make the group wheel ready to use with sudo
-arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+exeOnInstall sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 #make a proxy available for sudo
-arch-chroot /mnt echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
-arch-chroot /mnt echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
+exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
+exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
-echo "Install kernel"
+echo "Install kernel..."
 
-arch-chroot /mnt mkinitcpio -p linux
+exeOnInstall mkinitcpio -p linux
 
 echo "Set root password..."
 
@@ -172,30 +176,15 @@ then
   rootPass=$REPLY
 fi
 
-arch-chroot /mnt sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
+exeOnInstall sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
   $rootPass # password
   $rootPass # second time
 EOF
 
-#Needs to be looked again
-#echo "Install GRUB..."
-#arch-chroot /mnt echo 'y' | pacman -Sq grub efibootmgr dosfstools
+echo "Install GRUB..."
+exeOnInstall echo 'y' | pacman -Sq grub efibootmgr
 
-#arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck --debug
-
-#if [ ! $? -eq 0 ]
-#then
-#  echo "Error on create boot menu entry, trying again with efibootmgr..."
-#  arch-chroot /mnt efibootmgr -q -c -d ${installDev} -p 1 -w -L "GRUB: Arch-Linux" -l "\EFI\arch_grub\grubx64.efi"
-#  if [ $? -eq 0 ]
-#  then
-#    echo "Success"
-#  else
-#    echo "Error, no boot entry created!"
-#  fi
-#fi
-
-#arch-chroot /mnt mkdir -p /boot/grub/locale
-#arch-chroot /mnt cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "Exit installed system. Please reboot now to switch to your fresh arch linux."
