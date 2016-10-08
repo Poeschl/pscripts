@@ -12,13 +12,13 @@ Those are some of my scripts I use on my linux and cygwin machines. If you want 
 
 To install them on your system I made a oh-my-zsh like installer. To execute it put the next line in the shell.
 
-```script
+```shell
 sh -c "$(wget https://raw.githubusercontent.com/Poeschl/pscripts/master/tools/install.sh -O -)"
 ```
 
 or
 
-```script
+```shell
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/Poeschl/pscripts/master/tools/install.sh)"
 ```
 

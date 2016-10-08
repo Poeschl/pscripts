@@ -26,9 +26,9 @@ main() {
   set -e
 
   if [ ! -n "$PSCRIPTS" ]; then
-    PSCRIPTS=~/.oh-my-zsh
+    PSCRIPTS=~/.pscripts
   fi
-  PSCRIPTS=~/.pscripts
+
 
   if [ -d "$PSCRIPTS" ]; then
     printf "${YELLOW}You already have the pscripts installed.${NORMAL}\n"
@@ -57,12 +57,13 @@ main() {
   fi
 
   printf "${BLUE}Setup pscripts...${NORMAL}\n"
+  export PSCRIPTS=$PSCRIPTS
   echo "export PSCRIPTS=$PSCRIPTS" > ~/.zshenv
 
   ln -s -f "$PSCRIPTS/tools/update.sh" "$PSCRIPTS/scripts/update_pscripts.sh"
 
   printf "${BLUE}Add scripts folder to .zshenv ...${NORMAL}\n"
-  echo "export PATH=\$PSCRIPTS/scripts:$PATH%" > ~/.zshenv
+  echo "export PATH=\$PSCRIPTS/scripts:\$PATH%" >> ~/.zshenv
 
   printf "${RED}"
   echo ' _______  _______  _______  _______ _________ _______ _________ _______ '

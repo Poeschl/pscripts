@@ -34,7 +34,7 @@ then
   echo '| )      /\____) || (____/\| ) \ \_____) (___| )         | |   /\____) |'
   echo '|/       \_______)(_______/|/   \__/\_______/|/          )_(   \_______)'
   echo ''
-  printf '${BLUE}%s\n' "Yey, its updated and/or is at the latest version."
+  printf "${BLUE}%s\n" "Yey, its updated and/or is at the latest version."
 else
   printf "${BOLD}%s${NORMAL}\n" 'There was an error updating. Try again later?'
 fi
