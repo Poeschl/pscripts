@@ -60,7 +60,7 @@ main() {
 
   printf "${BLUE}Setup pscripts...${NORMAL}\n"
 
-  if [[ $envExists="0" ]];
+  if [ $envExists="0" ];
   then
     export PSCRIPTS=$PSCRIPTS
     echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
