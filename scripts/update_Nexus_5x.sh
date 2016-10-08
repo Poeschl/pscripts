@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 main() {
 	echo 'Before flashing make sure you have following files in the current folder:'
 	# echo '+ SuperSu-vx.xx-xxxxxxxxx.zip'
@@ -32,29 +32,38 @@ main() {
 		exit 1
 	fi
 
-	fastboot flash bootloader bootloader-bullhead-*.img
+	fastboot flash bootloader images/bootloader-bullhead-*.img
 	fastboot reboot-bootloader
 	waitingForFastbootDevice
 
-	fastboot flash radio radio-bullhead-bullhead-*.img
+	fastboot flash radio images/radio-bullhead-*.img
 	fastboot reboot-bootloader
 	waitingForFastbootDevice
 
-	fastboot flash boot boot.img
+	fastboot flash boot images/boot.img
 	fastboot erase cache
-	fastboot flash cache cache.img
-	# fastboot flash recovery recovery.img
-	fastboot flash system system.img
-	fastboot flash vendor vendor.img
+	fastboot flash cache images/cache.img
+	# fastboot flash recovery images/recovery.img
+	fastboot flash system images/system.img
+	fastboot flash vendor images/vendor.img
 
 	echo 'Flashing finished. Please install SuperSu again for root rights.'
 	echo 'The system might overwrite a custom recovery so you might have to install it again as well.'
 }
 
 function waitingForFastbootDevice {
-	echo 'Waiting for fastboot device... '
-	#sleep 5
-	fastboot device
+	for i in `seq 1 10`;
+  do
+		echo 'Waiting for fastboot device... '
+		sleep 5
+		detected=$(fastboot devices)
+		if [ ! -z "$detected" ];
+		then
+			break;
+		else
+			echo "Fastboot device not found - trying again!"
+		fi
+	done
 }
 
 main

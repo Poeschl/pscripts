@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 main() {
   # Use colors, but only if connected to a terminal, and that terminal
   # supports them.
