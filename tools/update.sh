@@ -22,8 +22,11 @@ fi
 
 printf "${BLUE}%s${NORMAL}\n" "Updating pscripts..."
 cd "$PSCRIPTS"
+
+git reset --hard
 if git pull --rebase --stat origin master
 then
+  ln -s -f "$PSCRIPTS/tools/update.sh" "$PSCRIPTS/scripts/update_pscripts.sh"
   printf "${RED}"
   echo ' _______  _______  _______  _______ _________ _______ _________ _______ '
   echo '(  ____ )(  ____ \(  ____ \(  ____ )\__   __/(  ____ )\__   __/(  ____ \'
