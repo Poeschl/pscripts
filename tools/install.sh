@@ -58,7 +58,7 @@ main() {
 
   printf "${BLUE}Setup pscripts...${NORMAL}\n"
   export PSCRIPTS=$PSCRIPTS
-  echo "export PSCRIPTS=$PSCRIPTS" > ~/.zshenv
+  echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
 
   ln -s -f "$PSCRIPTS/tools/update.sh" "$PSCRIPTS/scripts/update_pscripts.sh"
 
