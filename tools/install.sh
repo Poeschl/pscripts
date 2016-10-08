@@ -25,8 +25,10 @@ main() {
   # which may fail on systems lacking tput or terminfo
   set -e
 
+  envExists=0
   if [ ! -n "$PSCRIPTS" ]; then
     PSCRIPTS=~/.pscripts
+    envExists=1
   fi
 
 
@@ -57,8 +59,12 @@ main() {
   fi
 
   printf "${BLUE}Setup pscripts...${NORMAL}\n"
-  export PSCRIPTS=$PSCRIPTS
-  echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
+
+  if [[ $envExists="0" ]];
+  then
+    export PSCRIPTS=$PSCRIPTS
+    echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
+  fi
 
   ln -s -f "$PSCRIPTS/tools/update.sh" "$PSCRIPTS/scripts/update_pscripts.sh"
 
