@@ -62,14 +62,11 @@ main() {
 
   if [ $envExists="0" ];
   then
+    printf "${BLUE}Add stuff to .zshenv ...${NORMAL}\n"
     export PSCRIPTS=$PSCRIPTS
     echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
+    echo "export PATH=\$PATH:\$PSCRIPTS/scripts" >> ~/.zshenv
   fi
-
-  ln -s -f "$PSCRIPTS/tools/update.sh" "$PSCRIPTS/scripts/update_pscripts.sh"
-
-  printf "${BLUE}Add scripts folder to .zshenv ...${NORMAL}\n"
-  echo "export PATH=\$PSCRIPTS/scripts:\$PATH%" >> ~/.zshenv
 
   printf "${RED}"
   echo ' _______  _______  _______  _______ _________ _______ _________ _______ '
