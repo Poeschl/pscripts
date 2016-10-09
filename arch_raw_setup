@@ -15,7 +15,7 @@ echo "  2. partition: SWAP (1.25 times your RAM)"
 echo "  3. partition: ROOT (user-defined)"
 echo "  4. partition: HOME (user-defined)"
 echo "* German keyboard and locale"
-
+echo #
 read -p "Are you sure you want that?[yn] " -r
 echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
@@ -39,6 +39,7 @@ else
   exit 1
 fi
 
+echo #
 read -p "Is a proxy setup needed?[yn] " -r
 echo    # move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
@@ -49,6 +50,7 @@ then
   export https_proxy=$REPLY
 fi
 
+echo #
 read -p "Please specify the device to format and install arch on:[/dev/sda] " -r
 echo    # move to a new line
 installDev="/dev/sda"
@@ -89,6 +91,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
   y # accept changes
 EOF
 
+echo #
 read -p "How big should the root partition be:[10G] " -r
 echo    # move to a new line
 rootPartSize="10G"
@@ -132,7 +135,7 @@ genfstab -Lp /mnt > /mnt/etc/fstab
 cat /mnt/etc/fstab
 
 echo "Config system..."
-
+echo #
 read -p "Hostname: [arch]" -r
 echo    # move to a new line
 hostname="arch"
@@ -170,7 +173,7 @@ echo "Install kernel..."
 exeOnInstall mkinitcpio -p linux
 
 echo "Set root password..."
-
+echo #
 read -s -p "Root password:[arch] " -r
 echo    # move to a new line
 rootPass="arch"
@@ -185,7 +188,7 @@ exeOnInstall sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
 EOF
 
 echo "Install GRUB..."
-exeOnInstall echo 'y' | pacman -Sq grub efibootmgr
+echo 'y' | exeOnInstall pacman -Sq grub efibootmgr
 
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
