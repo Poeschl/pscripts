@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Use https://git.io/vPBwZ to download the latest version of it
+#
 
-function exeOnInstall {
+exeOnInstall() {
     arch-chroot /mnt $1
 }
 
