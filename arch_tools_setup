@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#
+# Use https://git.io/vPRR1 to download the latest version of it
+# To execute: sh -c "$(wget -O - https://git.io/vPRR1)"
+#
+
+exeAsUser() {
+  sudo -H -u $1 sh -c "$@"
+}
 
 silentpacman() {
   echo 'y' | sudo pacman $@
@@ -81,14 +89,14 @@ then
   userPass=$REPLY
 fi
 
-sudo useradd -m -G wheel -s /bin/bash $userName
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | sudo passwd
+sudo useradd -m -G wheel -s /bin/zsh $userName
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | exeAsUser $userName passwd
   $userPass # password
   $userPass # second time
 EOF
 
-currentUser=$(whoami)
-printf "Current user: ${YELLOW}$currentUser${NORMAL}\n"
+currentUser=$(exeAsUser $userName whoami)
+printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
 
 sudo passwd -l root
 
@@ -107,16 +115,17 @@ makepkg -si
 sudo yaourt -Syy
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
-sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
-mkdir ~/bin
-echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
+silentpacman -S zsh
+exeAsUser sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
+exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
+exeAsUser $userName mkdir ~/bin
+exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
 
 if [ useproxy=1 ];
 then
-  echo "export http_proxy=http://proxy.pixel.de:3128" >> ~/.zshenv
-  echo "export https_proxy=http://proxy.pixel.de:3128" >> ~/.zshenv
+  echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
+  echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
 fi
 
 echo "alias sudo='sudo '" >> /etc/zsh/zshenv
