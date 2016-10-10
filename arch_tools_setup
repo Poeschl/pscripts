@@ -106,7 +106,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd $username
   $userPass # password
   $userPass # second time
 EOF
-$userPass=""
+userPass=""
 
 currentUser=$(exeAsUser $userName whoami)
 printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
@@ -114,6 +114,7 @@ printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
 sudo passwd -l root
 
 printf "${BLUE}Install yaourt...${NORMAL}\n"
+silentpacman -S yajl
 sudo -H -u $userName sh -c "cd ~
 mkdir temp
 cd temp
@@ -122,16 +123,17 @@ tar -xvzf package-query.tar.gz
 curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 tar -xvzf yaourt.tar.gz
 cd package-query
-makepkg
+makepkg -i
 cd ..
 cd yaourt
-makepkg"
-sudo pacman -U /home/$userName/temp/package-query/package-query*.pkg.tar.xz
-sudo pacman -U /home/$userName/temp/yaourt/yaourt*.pkg.tar.xz
-rm -rf /home/$userName/temp
-
+makepkg -i
+cd ~
+rm -rf temp
+"
 
 exeAsUser $userName yaourt -Syy
+
+cd ~
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 silentpacman -S zsh
