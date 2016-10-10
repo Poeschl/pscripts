@@ -185,7 +185,8 @@ exeOnInstall locale-gen
 
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
-exeOnInstall pacman -Sy
+exeOnInstall pacman -Syy
+exeOnInstall pacman -S
 
 #make the group wheel ready to use with sudo
 exeOnInstall sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /etc/sudoers
@@ -194,6 +195,7 @@ exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
 printf "${BLUE}Install kernel..."
+echo 'y' | exeOnInstall pacman -Sf udev mkinitcpio
 
 exeOnInstall mkinitcpio -p linux
 
@@ -213,7 +215,7 @@ exeOnInstall sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
 EOF
 
 printf "${BLUE}Install GRUB..."
-echo 'y' | exeOnInstall pacman -Sq grub efibootmgr
+echo 'y' | exeOnInstall pacman -S grub efibootmgr
 
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
