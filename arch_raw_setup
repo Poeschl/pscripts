@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # Use https://git.io/vPBwZ to download the latest version of it
+# To execute: sh -c "$(wget -O - https://git.io/vPBwZ)"
 #
 
 exeOnInstall() {
