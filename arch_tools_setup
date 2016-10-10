@@ -115,21 +115,7 @@ sudo passwd -l root
 
 printf "${BLUE}Install yaourt...${NORMAL}\n"
 silentpacman -S yajl
-sudo -H -u $userName sh -c "cd ~
-mkdir temp
-cd temp
-curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
-tar -xvzf package-query.tar.gz
-curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
-tar -xvzf yaourt.tar.gz
-cd package-query
-makepkg -i
-cd ..
-cd yaourt
-makepkg -i
-cd ~
-rm -rf temp
-"
+exeAsUser $userName sh -c "$(wget -O - https://gist.githubusercontent.com/mgattozzi/66a90ae095f47786eb11/raw/e8179e16471cf323e7949210bfb60af36fab980a/yaourt.sh)"
 
 exeAsUser $userName yaourt -Syy
 
