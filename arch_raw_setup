@@ -50,7 +50,7 @@ then
 fi
 
 if [ ! -d "/sys/firmware/efi" ]; then
-  printf "${RED}Not booted in UEFI mode! Please reboot with UEFI enabled."
+  printf "${RED}Not booted in UEFI mode! Please reboot with UEFI enabled.${NORMAL}"
   exit 1
 else
   echo "UEFI mode enabled"
@@ -85,10 +85,10 @@ then
   installDev=$REPLY
 fi
 
-printf "${BLUE}Set german keyboard..."
+printf "${BLUE}Set german keyboard...${NORMAL}"
 loadkeys de-latin1
 
-printf "${BLUE}Partition harddisk..."
+printf "${BLUE}Partition harddisk...${NORMAL}"
 ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
 swapSize=`expr $ramSize / 4`
 swapSize=`expr $ramSize + $swapSize`
@@ -132,14 +132,14 @@ lvcreate --name root -L${rootPartSize} lvm # root partition
 lvcreate --name home -l100%FREE lvm  # home partition
 lvscan
 
-printf "${BLUE}Format partitions..."
+printf "${BLUE}Format partitions...${NORMAL}"
 
 mkfs.fat -F 32 ${installDev}1
 mkswap -L swap ${installDev}2
 mkfs.ext4 -L root /dev/lvm/root
 mkfs.ext4 -L home /dev/lvm/home
 
-printf "${BLUE}Mount partitions..."
+printf "${BLUE}Mount partitions...${NORMAL}"
 
 mount /dev/lvm/root /mnt # root
 mkdir -p /mnt/home
@@ -149,7 +149,7 @@ mount ${installDev}1 /mnt/boot # EFI
 
 swapon -L swap
 
-printf "${BLUE}Install Arch linux to disk..."
+printf "${BLUE}Install Arch linux to disk...${NORMAL}"
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on"
 sed -i "/^#Server/s/^#//" /etc/pacman.d/mirrorlist
@@ -195,12 +195,12 @@ exeOnInstall sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
-printf "${BLUE}Install kernel..."
+printf "${BLUE}Install kernel...${NORMAL}"
 echo 'y' | exeOnInstall pacman -Sf udev mkinitcpio
 
 exeOnInstall mkinitcpio -p linux
 
-printf "${BLUE}Set root password..."
+printf "${BLUE}Set root password...${NORMAL}"
 echo #
 read -s -p "Root password:[arch] " -r
 echo    # move to a new line
@@ -215,7 +215,7 @@ exeOnInstall sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
   $rootPass # second time
 EOF
 
-printf "${BLUE}Install GRUB..."
+printf "${BLUE}Install GRUB...${NORMAL}"
 echo 'y' | exeOnInstall pacman -S grub efibootmgr
 
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
@@ -225,4 +225,4 @@ umount /mnt/boot
 umount /mnt/home
 umount /mnt
 
-printf "${BLUE}Installed basic system.\nPlease reboot now to switch to your fresh arch linux."
+printf "${BLUE}Installed basic system.\nPlease reboot now to switch to your fresh arch linux.${NORMAL}"
