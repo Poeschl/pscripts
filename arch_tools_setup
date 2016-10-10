@@ -9,7 +9,7 @@ exeAsUser() {
 }
 
 silentpacman() {
-  echo 'y' | sudo pacman $@
+  echo 'j' | sudo pacman $@
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -55,7 +55,6 @@ printf "${RED}It is needed to get root rights for the following process!${NORMAL
 echo #
 read -p "Is a proxy setup needed?[yn] " -r
 echo    # move to a new line
-useproxy=0
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
   echo #
@@ -74,7 +73,7 @@ fi
 printf "${BLUE}Setup network...${NORMAL}\n"
 
 netInterface=$(ls /sys/class/net | grep -m 1 en*)
-dhcpcd $netInterface
+# dhcpcd $netInterface
 cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/wired-dhcp
 sed -i "/^Interface/s/eth0/$netInterface/" /etc/netctl/wired-dhcp
 netctl enable wired-dhcp
@@ -115,12 +114,12 @@ sudo passwd -l root
 
 printf "${BLUE}Install yaourt...${NORMAL}\n"
 cd /tmp
-curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
+exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
 tar -xvzf package-query.tar.gz
 cd package-query
 exeAsUser $userName makepkg -si
 cd ..
-curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
+exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 tar -xvzf yaourt.tar.gz
 cd yaourt
 exeAsUser $userName makepkg -si
