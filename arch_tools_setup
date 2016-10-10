@@ -117,12 +117,12 @@ mkdir temp
 chmod -R 777 temp
 cd temp
 exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
-tar -xvzf package-query.tar.gz
+exeAsUser $userName tar -xvzf package-query.tar.gz
 cd package-query
 exeAsUser $userName makepkg -si
 cd ..
 exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
-tar -xvzf yaourt.tar.gz
+exeAsUser $userName tar -xvzf yaourt.tar.gz
 cd yaourt
 exeAsUser $userName makepkg -si
 
