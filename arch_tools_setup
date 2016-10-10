@@ -5,7 +5,7 @@
 #
 
 exeAsUser() {
-  sudo -H -u $1 sh -c "$@"
+  sudo -H -u $1 ${@:2}
 }
 
 silentpacman() {
@@ -45,7 +45,7 @@ echo "* Development Environment"
 
 read -p "Are you sure you want that? [yn]" -r
 echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
+if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
   exit 1
 fi
@@ -63,12 +63,12 @@ then
   echo    # move to a new line
   export http_proxy=$REPLY
   export https_proxy=$REPLY
+fi
 
+if [ -n "$http_proxy" ]; then
   #make a proxy available for sudo
-  echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
-  echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
-
-  useproxy=1
+  echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
+  echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 fi
 
 printf "${BLUE}Setup network...${NORMAL}\n"
@@ -83,10 +83,10 @@ silentpacman -S ifplugd
 systemctl enable netctl-ifplugd@${netInterface}.service
 
 printf "${BLUE}Setup basic programs...${NORMAL}\n"
-silentpacman -S wget
+silentpacman -S wget curl
 
 printf "${BLUE}Setup working user...${NORMAL}\n"
-read -s -p "Username of new user:[archi] " -r
+read -p "Username of new user:[archi] " -r
 echo    # move to a new line
 userName="archi"
 if [ ! -z $REPLY ];
@@ -103,7 +103,7 @@ then
 fi
 
 sudo useradd -m -G wheel -s /bin/zsh $userName
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | exeAsUser $userName passwd
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd $username
   $userPass # password
   $userPass # second time
 EOF
@@ -118,25 +118,24 @@ cd /tmp
 curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
 tar -xvzf package-query.tar.gz
 cd package-query
-makepkg -si
+exeAsUser $userName makepkg -si
 cd ..
 curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 tar -xvzf yaourt.tar.gz
 cd yaourt
-makepkg -si
+exeAsUser $userName makepkg -si
 
-sudo yaourt -Syy
+exeAsUser $userName yaourt -Syy
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 silentpacman -S zsh
-exeAsUser sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+exeAsUser $userName sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
 exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
 exeAsUser $userName mkdir ~/bin
 exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
 
-if [ useproxy=1 ];
-then
+if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
   echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
 fi
