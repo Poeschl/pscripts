@@ -182,9 +182,6 @@ exeOnInstall pacman -Syy
 
 #make the group wheel ready to use with sudo
 sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /mnt/etc/sudoers
-#make a proxy available for sudo
-echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
-echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
 
 printf "${BLUE}Install kernel...${NORMAL}\n"
 sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpio.conf

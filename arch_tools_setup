@@ -4,6 +4,31 @@ silentpacman() {
   echo 'y' | sudo pacman $@
 }
 
+# Use colors, but only if connected to a terminal, and that terminal
+# supports them.
+if which tput >/dev/null 2>&1; then
+    ncolors=$(tput colors)
+fi
+if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+  RED="$(tput setaf 1)"
+  GREEN="$(tput setaf 2)"
+  YELLOW="$(tput setaf 3)"
+  BLUE="$(tput setaf 6)"
+  BOLD="$(tput bold)"
+  NORMAL="$(tput sgr0)"
+else
+  RED=""
+  GREEN=""
+  YELLOW=""
+  BLUE=""
+  BOLD=""
+  NORMAL=""
+fi
+
+# Only enable exit-on-error after the non-critical colorization stuff,
+# which may fail on systems lacking tput or terminfo
+set -e
+
 echo "This will install some tools on your system:"
 echo "* yaourt"
 echo "* System tools"
@@ -17,17 +42,28 @@ then
   exit 1
 fi
 
+printf "${RED}It is needed to get root rights for the following process!${NORMAL}\n"
+
+echo #
 read -p "Is a proxy setup needed?[yn] " -r
 echo    # move to a new line
+useproxy=0
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
+  echo #
   read -p "Enter the address of the proxy:" -r
   echo    # move to a new line
   export http_proxy=$REPLY
   export https_proxy=$REPLY
+
+  #make a proxy available for sudo
+  echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
+  echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
+
+  useproxy=1
 fi
 
-echo "Setup working user..."
+printf "${BLUE}Setup working user...${NORMAL}\n"
 
 read -s -p "Username of new user:[archi] " -r
 echo    # move to a new line
@@ -52,11 +88,11 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | sudo passwd
 EOF
 
 currentUser=$(whoami)
-echo "Current user: $currentUser"
+printf "Current user: ${YELLOW}$currentUser${NORMAL}\n"
 
 sudo passwd -l root
 
-echo "Install yaourt..."
+printf "${BLUE}Install yaourt...${NORMAL}\n"
 cd /tmp
 curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
 tar -xvzf package-query.tar.gz
@@ -70,17 +106,25 @@ makepkg -si
 
 sudo yaourt -Syy
 
-echo "Install oh-my-zsh with plugins..."
+printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-sed -i 's/robbyrussell/gentoo/g' ~/.zshrc
-sed -i 's/plugins=(git)/plugins=(git sudo adb gradle archlinux history)/g' ~/.zshrc
+sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
+sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
 mkdir ~/bin
 echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
 
-echo "Install Reflector..."
+if [ useproxy=1 ];
+then
+  echo "export http_proxy=http://proxy.pixel.de:3128" >> ~/.zshenv
+  echo "export https_proxy=http://proxy.pixel.de:3128" >> ~/.zshenv
+fi
+
+echo "alias sudo='sudo '" >> /etc/zsh/zshenv
+
+printf "${BLUE}Install Reflector...${NORMAL}\n"
 #Reflector for mirrorlist refreshing
 sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-sudo yaourt -Sq reflector-timer-weekly
+sudo yaourt -S reflector-timer-weekly
 
 sudo sed -i '/--country/d' /etc/reflector.conf
 sudo echo "--country Germany" >> /etc/reflector.conf
@@ -88,13 +132,12 @@ sudo echo "--country Germany" >> /etc/reflector.conf
 sudo systemctl enable reflector.timer
 sudo systemctl start reflector.service
 
-echo "Install nano..."
-sudo pacman -Sq nano
+printf "${BLUE}Install nano...${NORMAL}\n"
+silentpacman -S nano
 echo "export EDITOR=nano" >> /etc/zsh/zshenv
-echo "alias sudo='sudo '" >> /etc/zsh/zshenv
 
-echo "Configure NTP..."
-sudo pacman -Sq ntp
+printf "${BLUE}Configure NTP...${NORMAL}\n"
+silentpacman -S ntp
 
 sudo sed -i.bak '/server/d' /etc/ntp.conf
 sudo echo "server 0.de.pool.ntp.org" >> /etc/ntp.conf
@@ -109,18 +152,19 @@ sudo echo "restrict 127.0.0.1" >> /etc/ntp.conf
 
 sudo systemctl enable ntpd.service
 
+echo #
 read -p "Is the system running in a virtualbox environment? [yn]" -r
 echo    # move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-  sudo pacman -Sq virtualbox-guest-modules-arch virtualbox-guest-utils
+  silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
   sudo systemctl enable vboxservice.service
 else
-  echo "Skipping virtualbox additions"
+  printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
 fi
 
-echo "Install lightdm and gtk-greeter..."
-sudo pacman -Sq lightdm lightdm-gtk-greeter
+printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
+silentpacman -S lightdm lightdm-gtk-greeter
 sudo systemctl enable lightdm.service
 
 desktopEnv=""
@@ -132,20 +176,20 @@ read -n 1 desktopSelection
 echo #new line
 case $desktopSelection in
     1 )
-      echo "Install Cinnamon..."
-      sudo pacman -Sq cinnamon
+      printf "${BLUE}Install Cinnamon...${NORMAL}\n"
+      silentpacman -S cinnamon
       desktopEnv="cinnamon"
       ;;
     2 )
-      echo "Install Xfce..."
-      sudo pacman -Sq xfce4
+      printf "${BLUE}Install Xfce...${NORMAL}\n"
+      silentpacman -S xfce4
       desktopEnv="xfce"
       ;;
 esac
 done
 
-echo "Install Material Look..."
-sudo yaourt -Sq paper-icon-theme adapta-gtk-theme ttf-roboto
+printf "${BLUE}Install Material Look...${NORMAL}\n"
+sudo yaourt -S paper-icon-theme adapta-gtk-theme ttf-roboto
 
 case "$desktopEnv" in
   "cinnamon" )
@@ -159,23 +203,23 @@ case "$desktopEnv" in
     xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
 esac
 
-echo "Install gedit..."
-sudo pacman -Sq gedit
+printf "${BLUE}Install gedit...${NORMAL}\n"
+silentpacman -S gedit
 
-echo "Install google-chrome..."
-sudo yaourt -Sq google-chrome
+printf "${BLUE}Install google-chrome...${NORMAL}\n"
+sudo yaourt -S google-chrome
 
-echo "Install atom..."
-sudo pacman -Sq atom
+printf "${BLUE}Install atom...${NORMAL}\n"
+silentpacman -S atom
 
-echo "Install JDK 8..."
-sudo pacman -Sq jdk8-openjdk
+printf "${BLUE}Install JDK 8...${NORMAL}\n"
+silentpacman -S jdk8-openjdk
 
-echo "Install IDEA Community Edition..."
-sudo pacman -Sq intellij-idea-community-edition
+printf "${BLUE}Install IDEA Community Edition...${NORMAL}\n"
+silentpacman -S intellij-idea-community-edition
 
-echo "Install Android-SDK..."
-sudo yaourt -Sq android-sdk
+printf "${BLUE}Install Android-SDK...${NORMAL}\n"
+sudo yaourt -S android-sdk
 sudo groupadd androidsdk
 sudo gpasswd -a $currentUser androidsdk
 sudo chown -R :sdkusers /opt/android-sdk/
@@ -184,9 +228,9 @@ export ANDROID_HOME=/opt/android-sdk
 echo "export ANDROID_HOME=/opt/android-sdk" >> ~/.zshenv
 $ANDROID_HOME/tools/android update sdk --no-ui
 
-echo "Install ADB..."
-sudo pacman -Sq android-tools
+printf "${BLUE}Install ADB...${NORMAL}\n"
+silentpacman -S android-tools
 sudo gpasswd -a $currentUser adbusers
 
-echo "Install Android Studio..."
-sudo yaourt -Sq android-studio
+printf "${BLUE}Install Android Studio...${NORMAL}\n"
+sudo yaourt -S android-studio
