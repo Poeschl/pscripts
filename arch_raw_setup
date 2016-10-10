@@ -159,18 +159,18 @@ then
   hostname=$REPLY
 fi
 
-exeOnInstall echo $hostname > /etc/hostname
+echo $hostname > /mnt/etc/hostname
 
-exeOnInstall echo LANG=de_DE.UTF-8 > /etc/locale.conf
-exeOnInstall echo LC_COLLATE=C >> /etc/locale.conf
-exeOnInstall echo LANGUAGE=de_DE >> /etc/locale.conf
+echo LANG=de_DE.UTF-8 > /mnt/etc/locale.conf
+echo LC_COLLATE=C >> /mnt/etc/locale.conf
+echo LANGUAGE=de_DE >> /mnt/etc/locale.conf
 
 exeOnInstall ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-exeOnInstall cp /etc/locale.gen /etc/locale.gen.bak
-exeOnInstall sed -i "/^#de_DE.UTF-8/s/^#//" /etc/locale.gen
-exeOnInstall sed -i "/^#de_DE\sISO-8859-1/s/^#//" /etc/locale.gen
-exeOnInstall sed -i "/^#en_US.UTF-8/s/^#//" /etc/locale.gen
+cp /mnt/etc/locale.gen /mnt/etc/locale.gen.bak
+sed -i "/^#de_DE.UTF-8/s/^#//" /mnt/etc/locale.gen
+sed -i "/^#de_DE\sISO-8859-1/s/^#//" /mnt/etc/locale.gen
+sed -i "/^#en_US.UTF-8/s/^#//" /mnt/etc/locale.gen
 exeOnInstall locale-gen
 
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
@@ -178,13 +178,13 @@ cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 exeOnInstall pacman -Syy
 
 #make the group wheel ready to use with sudo
-exeOnInstall sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /etc/sudoers
+sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /mnt/etc/sudoers
 #make a proxy available for sudo
-exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
-exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
+echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
+echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
 
 printf "${BLUE}Install kernel...${NORMAL}\n"
-exeOnInstall sed -i "/^HOOKS/s/block filesystems/block lvm2 filesystems/" /etc/locale.gen
+sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpio.conf
 exeOnInstall mkinitcpio -p linux
 
 printf "${BLUE}Set root password...${NORMAL}\n"

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+silentpacman() {
+  echo 'y' | sudo pacman $@
+}
 
 echo "This will install some tools on your system:"
 echo "* yaourt"
