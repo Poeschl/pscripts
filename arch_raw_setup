@@ -53,15 +53,15 @@ if [ ! -d "/sys/firmware/efi" ]; then
   printf "${RED}Not booted in UEFI mode! Please reboot with UEFI enabled.${NORMAL}\n"
   exit 1
 else
-  echo "UEFI mode enabled"
+  printf "${GREEN}UEFI mode enabled${NORMAL}\n"
 fi
 
 ping -q -c2 archlinux.org > /dev/null
 if [ $? -eq 0 ]
 then
-	echo "Internet available"
+	printf "${GREEN}Internet available${NORMAL}\n"
 else
-  echo "No internet available, please check the connectivity and try again!"
+  printf "${RED}No internet available, please check the connectivity and try again!${NORMAL}\n"
   exit 1
 fi
 
@@ -149,7 +149,7 @@ printf "${BLUE}Generate fstab...${NORMAL}\n"
 genfstab -Lp /mnt > /mnt/etc/fstab
 cat /mnt/etc/fstab
 
-printf "${BLUE}Config system..${NORMAL}\n."
+printf "${BLUE}Config system...${NORMAL}\n"
 echo #
 read -p "Hostname: [arch]" -r
 echo    # move to a new line
