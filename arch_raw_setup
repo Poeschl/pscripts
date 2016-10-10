@@ -66,17 +66,6 @@ else
 fi
 
 echo #
-read -p "Is a proxy setup needed?[yn] " -r
-echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  read -p "Enter the address of the proxy:" -r
-  echo    # move to a new line
-  export http_proxy=$REPLY
-  export https_proxy=$REPLY
-fi
-
-echo #
 read -p "Please specify the device to format and install arch on:[/dev/sda] " -r
 echo    # move to a new line
 installDev="/dev/sda"
