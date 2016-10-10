@@ -17,7 +17,7 @@ if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
   RED="$(tput setaf 1)"
   GREEN="$(tput setaf 2)"
   YELLOW="$(tput setaf 3)"
-  BLUE="$(tput setaf 4)"
+  BLUE="$(tput setaf 6)"
   BOLD="$(tput bold)"
   NORMAL="$(tput sgr0)"
 else
@@ -215,4 +215,4 @@ umount /mnt/boot
 umount /mnt/home
 umount /mnt
 
-printf "${BLUE}Installed basic system.\nPlease reboot now to switch to your fresh arch linux.${NORMAL}\n"
+printf "${YELLOW}Installed basic system.\nPlease reboot now to switch to your fresh arch linux.${NORMAL}\n"
