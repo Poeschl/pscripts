@@ -106,6 +106,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd $username
   $userPass # password
   $userPass # second time
 EOF
+$userPass=""
 
 currentUser=$(exeAsUser $userName whoami)
 printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
@@ -121,25 +122,24 @@ tar -xvzf package-query.tar.gz
 curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 tar -xvzf yaourt.tar.gz
 cd package-query
-makepkg -si
+makepkg
 cd ..
 cd yaourt
-makepkg -si
-cd ~
-rm -rf temp
-"
+makepkg"
+sudo pacman -U /home/$userName/temp/package-query/package-query*.pkg.tar.xz
+sudo pacman -U /home/$userName/temp/yaourt/yaourt*.pkg.tar.xz
+rm -rf /home/$userName/temp
+
 
 exeAsUser $userName yaourt -Syy
 
-cd ~
-
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 silentpacman -S zsh
-exeAsUser $userName sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
-exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
-exeAsUser $userName mkdir ~/bin
-exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
+sudo -H -u $userName sh -c "sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
+sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
+mkdir ~/bin
+echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv"
 
 if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
