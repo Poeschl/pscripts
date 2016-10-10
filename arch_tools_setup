@@ -45,7 +45,7 @@ echo "* Development Environment"
 
 read -p "Are you sure you want that? [yn]" -r
 echo    # move to a new line
-if [[ $REPLY != ^[Yy]$ ]]
+if [[ $REPLY =~ ^[Yy]$ ]]
 then
   exit 1
 fi
@@ -71,8 +71,21 @@ then
   useproxy=1
 fi
 
-printf "${BLUE}Setup working user...${NORMAL}\n"
+printf "${BLUE}Setup network...${NORMAL}\n"
 
+netInterface=$(ls /sys/class/net | grep -m 1 en*)
+dhcpcd $netInterface
+cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/wired-dhcp
+sed -i "/^Interface/s/eth0/$netInterface/" /etc/netctl/wired-dhcp
+netctl enable wired-dhcp
+
+silentpacman -S ifplugd
+systemctl enable netctl-ifplugd@${netInterface}.service
+
+printf "${BLUE}Setup basic programs...${NORMAL}\n"
+silentpacman -S wget
+
+printf "${BLUE}Setup working user...${NORMAL}\n"
 read -s -p "Username of new user:[archi] " -r
 echo    # move to a new line
 userName="archi"
