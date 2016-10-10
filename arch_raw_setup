@@ -195,8 +195,8 @@ exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
 printf "${BLUE}Install kernel...${NORMAL}\n"
+exeOnInstall sed -i "/^HOOKS/s/block filesystems/block lvm2 filesystems/" /etc/locale.gen
 exeOnInstall mkinitcpio -p linux
-
 
 printf "${BLUE}Set root password...${NORMAL}\n"
 echo #
