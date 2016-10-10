@@ -7,6 +7,31 @@ exeOnInstall() {
   arch-chroot /mnt $@
 }
 
+# Use colors, but only if connected to a terminal, and that terminal
+# supports them.
+if which tput >/dev/null 2>&1; then
+    ncolors=$(tput colors)
+fi
+if [ -t 1 ] && [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+  RED="$(tput setaf 1)"
+  GREEN="$(tput setaf 2)"
+  YELLOW="$(tput setaf 3)"
+  BLUE="$(tput setaf 4)"
+  BOLD="$(tput bold)"
+  NORMAL="$(tput sgr0)"
+else
+  RED=""
+  GREEN=""
+  YELLOW=""
+  BLUE=""
+  BOLD=""
+  NORMAL=""
+fi
+
+# Only enable exit-on-error after the non-critical colorization stuff,
+# which may fail on systems lacking tput or terminfo
+set -e
+
 echo "This will install linux arch with following settings:"
 echo "* Install it in UEFI mode"
 echo "* partitions with LVM"
@@ -24,7 +49,7 @@ then
 fi
 
 if [ ! -d "/sys/firmware/efi" ]; then
-  echo "Not booted in UEFI mode! Please reboot with UEFI enabled."
+  printf "${RED}Not booted in UEFI mode! Please reboot with UEFI enabled."
   exit 1
 else
   echo "UEFI mode enabled"
@@ -59,10 +84,10 @@ then
   installDev=$REPLY
 fi
 
-echo "Set german keyboard..."
+printf "${BLUE}Set german keyboard..."
 loadkeys de-latin1
 
-echo "Partition harddisk..."
+printf "${BLUE}Partition harddisk..."
 ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
 swapSize=`expr $ramSize / 4`
 swapSize=`expr $ramSize + $swapSize`
@@ -106,14 +131,14 @@ lvcreate --name root -L${rootPartSize} lvm # root partition
 lvcreate --name home -l100%FREE lvm  # home partition
 lvscan
 
-echo "Format partitions..."
+printf "${BLUE}Format partitions..."
 
 mkfs.fat -F 32 ${installDev}1
 mkswap -L swap ${installDev}2
 mkfs.ext4 -L root /dev/lvm/root
 mkfs.ext4 -L home /dev/lvm/home
 
-echo "Mount partitions..."
+printf "${BLUE}Mount partitions..."
 
 mount /dev/lvm/root /mnt # root
 mkdir -p /mnt/home
@@ -123,18 +148,18 @@ mount ${installDev}1 /mnt/boot # EFI
 
 swapon -L swap
 
-echo "Install Arch linux to disk..."
+printf "${BLUE}Install Arch linux to disk..."
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on"
 sed -i "/^#Server/s/^#//" /etc/pacman.d/mirrorlist
 
 pacstrap /mnt base base-devel
 
-echo "Generate fstab..."
+printf "${BLUE}Generate fstab..."
 genfstab -Lp /mnt > /mnt/etc/fstab
 cat /mnt/etc/fstab
 
-echo "Config system..."
+printf "${BLUE}Config system..."
 echo #
 read -p "Hostname: [arch]" -r
 echo    # move to a new line
@@ -168,11 +193,11 @@ exeOnInstall sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
 exeOnInstall echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 
-echo "Install kernel..."
+printf "${BLUE}Install kernel..."
 
 exeOnInstall mkinitcpio -p linux
 
-echo "Set root password..."
+printf "${BLUE}Set root password..."
 echo #
 read -s -p "Root password:[arch] " -r
 echo    # move to a new line
@@ -187,10 +212,10 @@ exeOnInstall sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd
   $rootPass # second time
 EOF
 
-echo "Install GRUB..."
+printf "${BLUE}Install GRUB..."
 echo 'y' | exeOnInstall pacman -Sq grub efibootmgr
 
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
 
-echo "Exit installed system. Please reboot now to switch to your fresh arch linux."
+printf "${BLUE}Installed basic system.\nPlease reboot now to switch to your fresh arch linux."
