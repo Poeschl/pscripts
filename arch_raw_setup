@@ -218,4 +218,8 @@ echo 'y' | exeOnInstall pacman -Sq grub efibootmgr
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
 
+umount /mnt/boot
+umount /mnt/home
+umount /mnt
+
 printf "${BLUE}Installed basic system.\nPlease reboot now to switch to your fresh arch linux."
