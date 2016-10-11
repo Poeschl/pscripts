@@ -226,7 +226,7 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
-silentyaourt -S paper-icon-theme-git adapta-gtk-theme-git ttf-roboto
+silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 
 case "$desktopEnv" in
   "cinnamon" )
