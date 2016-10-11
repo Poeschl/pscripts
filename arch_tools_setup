@@ -94,14 +94,8 @@ then
   userName=$REPLY
 fi
 
-id "$userName"
-if [ $?=0 ]; then
-  printf "${YELLOW}User already there, using exiting one.${NORMAL}\n"
-else
-  useradd -m -G wheel $userName
-  passwd $userName
-fi
-
+useradd -m -G wheel $userName
+passwd $userName
 
 currentUser=$(exeAsUser $userName whoami)
 printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
