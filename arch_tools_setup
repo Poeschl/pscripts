@@ -56,6 +56,15 @@ then
   exit 1
 fi
 
+ping -q -c2 archlinux.org > /dev/null
+if [ $? -eq 0 ]
+then
+	printf "${GREEN}Internet available${NORMAL}\n"
+else
+  printf "${RED}No internet available, please check the connectivity and try again!${NORMAL}\n"
+  exit 1
+fi
+
 printf "${RED}It is needed to get root rights for the following process!${NORMAL}\n"
 
 echo #
@@ -77,8 +86,10 @@ if [ -n "$http_proxy" ]; then
 fi
 
 printf "${BLUE}Setup network...${NORMAL}\n"
-silentpacman -S networkmanager
-systemctl enable NetworkManager.service
+systemctl enable dhcpcd@eth0
+
+printf "${BLUE}Sync packages database...${NORMAL}\n"
+silentpacman -Syy
 
 printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
 silentpacman -S wget curl git acpid dbus avahi cups cronie mesa-libgl
