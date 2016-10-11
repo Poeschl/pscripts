@@ -228,7 +228,7 @@ done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
 exPaper=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
-if [ -n $exPaper ]; then
+if [ -z $exPaper ]; then
   silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 fi
 
