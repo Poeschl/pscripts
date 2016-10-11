@@ -227,8 +227,8 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
-existentMaterial=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
-if [ -n $existentMaterial ]; then
+exPaper=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
+if [ -n $exPaper ]; then
   silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 fi
 
