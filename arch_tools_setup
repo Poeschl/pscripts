@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# Use https://git.io/vPRR1 to download the latest version of it
-# To execute: sh -c "$(wget -O - https://git.io/vPRR1)"
-#
 
 exeAsUser() {
   sudo -H -u $1 ${@:2}
