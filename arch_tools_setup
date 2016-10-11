@@ -135,7 +135,7 @@ exeAsUser $userName ./oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" /home/$userName/.zshrc
 sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" /home/$userName/.zshrc
 exeAsUser $userName mkdir bin
-echo "export PATH=$HOME/bin:$PATH%" > /home/$userName/.zshenv
+echo "export PATH=$HOME/bin:\$PATH%" > /home/$userName/.zshenv
 
 if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
