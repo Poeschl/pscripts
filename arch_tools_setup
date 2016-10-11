@@ -171,6 +171,9 @@ printf "${BLUE}Install nano...${NORMAL}\n"
 silentpacman -S nano
 echo "export EDITOR=usr/bin/nano" >> /etc/zsh/zshenv
 
+printf "${BLUE}Install htop...${NORMAL}\n"
+silentpacman -S htop
+
 printf "${BLUE}Configure NTP...${NORMAL}\n"
 silentpacman -S ntp
 
