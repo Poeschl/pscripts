@@ -129,28 +129,33 @@ cd ~
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 cd /home/$userName/
 
-silentpacman -S zsh
-exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-exeAsUser $userName chmod u+x oh-my-zsh
-exeAsUser $userName sed -i "/env\szsh/d" oh-my-zsh
+if [ ! -f .oh-my-zsh ]; then
+  silentpacman -S zsh
+  exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+  exeAsUser $userName chmod u+x oh-my-zsh
+  exeAsUser $userName sed -i "/env\szsh/d" oh-my-zsh
 
-exeAsUser $userName ./oh-my-zsh
-sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" /home/$userName/.zshrc
-sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" /home/$userName/.zshrc
-exeAsUser $userName mkdir bin
-echo "export PATH=$HOME/bin:\$PATH%" > /home/$userName/.zshenv
+  exeAsUser $userName ./oh-my-zsh
+  sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" /home/$userName/.zshrc
+  sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" /home/$userName/.zshrc
+  exeAsUser $userName mkdir bin
+  echo "export PATH=$HOME/bin:\$PATH%" > /home/$userName/.zshenv
 
-if [ -n "$http_proxy" ]; then
-  echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
-  echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
+  if [ -n "$http_proxy" ]; then
+    echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
+    echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
+  fi
+
+  #set zsh also for root
+  chsh -s $(grep /zsh$ /etc/shells | tail -1)
+
+  echo "alias sudo='sudo '" >> /etc/zsh/zshenv
+
+  rm -rf oh-my-zsh
+
+else
+  printf "${YELLOW}oh-my-zsh already there, using exiting one.${NORMAL}\n"
 fi
-
-#set zsh also for root
-chsh -s $(grep /zsh$ /etc/shells | tail -1)
-
-echo "alias sudo='sudo '" >> /etc/zsh/zshenv
-
-rm -rf oh-my-zsh
 cd ~
 
 printf "${BLUE}Install Reflector...${NORMAL}\n"
