@@ -127,11 +127,12 @@ cd ~
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 silentpacman -S zsh
-sudo -H -u $userName sh -c "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+sudo -H -u $userName -s /bin/zsh sh -c "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+sudo -H -u $userName sh -c "
 sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
 sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
 mkdir ~/bin
-echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
+echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv"
 
 if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
