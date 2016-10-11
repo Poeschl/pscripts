@@ -93,20 +93,8 @@ then
   userName=$REPLY
 fi
 
-read -s -p "Password for new user:[love] " -r
-echo    # move to a new line
-userPass="love"
-if [ ! -z $REPLY ];
-then
-  userPass=$REPLY
-fi
-
 sudo useradd -m -G wheel -s /bin/zsh $userName
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | passwd $username
-  $userPass # password
-  $userPass # second time
-EOF
-userPass=""
+passwd $username
 
 currentUser=$(exeAsUser $userName whoami)
 printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
@@ -114,9 +102,20 @@ printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
 sudo passwd -l root
 
 printf "${BLUE}Install yaourt...${NORMAL}\n"
-exeAsUser $userName wget -O /home/$userName/yaourt-install https://raw.githubusercontent.com/Phifo/yaourt/master/yaourt-install
-chmod a+x /home/$userName/yaourt-install
-exeAsUser $userName /home/$userName/yaourt-install
+
+cd /home/$userName/
+
+exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
+exeAsUser $userName tar -xvzf package-query.tar.gz
+cd package-query
+exeAsUser $userName makepkg -si
+cd ..
+exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
+exeAsUser $userName tar -xvzf yaourt.tar.gz
+cd yaourt
+exeAsUser $userName makepkg -si
+
+# rm -rf package-query yaourt
 
 exeAsUser $userName yaourt -Syy
 
