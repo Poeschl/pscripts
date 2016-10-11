@@ -188,19 +188,7 @@ sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpi
 exeOnInstall mkinitcpio -p linux
 
 printf "${BLUE}Set root password...${NORMAL}\n"
-echo #
-read -s -p "Root password:[arch] " -r
-echo    # move to a new line
-rootPass="arch"
-if [ ! -z $REPLY ];
-then
-  rootPass=$REPLY
-fi
-
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | exeOnInstall passwd
-  $rootPass # password
-  $rootPass # second time
-EOF
+exeOnInstall passwd
 
 printf "${BLUE}Install GRUB...${NORMAL}\n"
 echo 'y' | exeOnInstall pacman -S grub efibootmgr

@@ -94,7 +94,7 @@ then
 fi
 
 sudo useradd -m -G wheel $userName
-passwd $username
+passwd $userName
 
 currentUser=$(exeAsUser $userName whoami)
 printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
