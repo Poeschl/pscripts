@@ -187,10 +187,15 @@ printf "${BLUE}Set root password...${NORMAL}\n"
 exeOnInstall passwd
 
 printf "${BLUE}Install GRUB...${NORMAL}\n"
-echo 'y' | exeOnInstall pacman -S grub efibootmgr
+exeOnInstall pacman --noconfirm -S grub efibootmgr
 
 exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
+
+printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
+exeOnInstall pacman --noconfirm -S wget curl git
+networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
+exeOnInstall systemctl enable dhcpcd@$networkInterface
 
 umount /mnt/boot
 umount /mnt/home

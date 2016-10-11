@@ -83,17 +83,11 @@ if [ -n "$http_proxy" ]; then
   echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
 fi
 
-printf "${BLUE}Setup network...${NORMAL}\n"
-systemctl enable dhcpcd@eth0
-
 printf "${BLUE}Enable multilib repository...${NORMAL}\n"
 sed -i "s|^#\[multilib\]|[multilib]\nInclude = /etc/pacman.d/mirrorlist|" /etc/pacman.conf
 
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
-
-printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
-silentpacman -S wget curl git
 
 printf "${BLUE}Setup working user...${NORMAL}\n"
 read -p "Username of new user:[archi] " -r
