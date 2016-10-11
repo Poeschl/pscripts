@@ -78,17 +78,18 @@ fi
 
 printf "${BLUE}Setup network...${NORMAL}\n"
 
-netInterface=$(ls /sys/class/net | grep -m 1 en*)
-# dhcpcd $netInterface
-cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/wired-dhcp
-sed -i "/^Interface/s/eth0/$netInterface/" /etc/netctl/wired-dhcp
-netctl enable wired-dhcp
+systemctl enable networkmanager
 
-silentpacman -S ifplugd
-systemctl enable netctl-ifplugd@${netInterface}.service
-
-printf "${BLUE}Setup basic programs...${NORMAL}\n"
+printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
 silentpacman -S wget curl git
+
+pacman -S acpid dbus avahi cups cronie
+
+systemctl enable acpid
+systemctl enable dbus
+systemctl enable avahi
+systemctl enable cups
+systemctl enable cronie
 
 printf "${BLUE}Setup working user...${NORMAL}\n"
 read -p "Username of new user:[archi] " -r
@@ -183,6 +184,11 @@ echo "restrict 127.0.0.1" >> /etc/ntp.conf
 
 systemctl enable ntpd.service
 
+ntpd -gq
+time = $(date)
+printf "Current time: ${YELLOW}$time${NORMAL}\n"
+hwclock -w
+
 echo #
 read -p "Is the system running in a virtualbox environment? [yn]" -r
 echo    # move to a new line
@@ -220,7 +226,7 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
-silentyaourt -S paper-icon-theme adapta-gtk-theme ttf-roboto
+silentyaourt -S paper-icon-theme-git adapta-gtk-theme-git ttf-roboto
 
 case "$desktopEnv" in
   "cinnamon" )
