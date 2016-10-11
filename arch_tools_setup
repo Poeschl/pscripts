@@ -77,11 +77,6 @@ then
   export https_proxy=$REPLY
 fi
 
-if [ -n "$http_proxy" ]; then
-  #make a proxy available for sudo
-  echo "Defaults env_keep += \"http_proxy\"" >> /etc/sudoers
-  echo "Defaults env_keep += \"https_proxy\"" >> /etc/sudoers
-fi
 
 printf "${BLUE}Enable multilib repository...${NORMAL}\n"
 sed -i "s|^#\[multilib\]|[multilib]\nInclude = /etc/pacman.d/mirrorlist|" /etc/pacman.conf
