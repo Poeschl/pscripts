@@ -273,7 +273,7 @@ silentpacman -S intellij-idea-community-edition
 printf "${BLUE}Install Android-SDK...${NORMAL}\n"
 silentyaourt -S android-sdk
 groupadd androidsdk
-gpasswd -a $currentUser androidsdk
+gpasswd -a $userName androidsdk
 chown -R :sdkusers /opt/android-sdk/
 chmod -R g+w /opt/android-sdk/
 export ANDROID_HOME=/opt/android-sdk
@@ -282,7 +282,7 @@ $ANDROID_HOME/tools/android update sdk --no-ui
 
 printf "${BLUE}Install ADB...${NORMAL}\n"
 silentpacman -S android-tools
-gpasswd -a $currentUser adbusers
+gpasswd -a $userName adbusers
 
 printf "${BLUE}Install Android Studio...${NORMAL}\n"
 silentyaourt -S android-studio
