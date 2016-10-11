@@ -119,7 +119,7 @@ exeAsUser $userName tar -xvzf yaourt.tar.gz
 cd yaourt
 exeAsUser $userName makepkg -si --noconfirm
 
-# rm -rf package-query yaourt
+rm -rf package-query yaourt
 
 exeAsUser $userName yaourt -Syy
 
