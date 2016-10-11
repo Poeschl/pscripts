@@ -86,7 +86,7 @@ silentpacman -S ifplugd
 systemctl enable netctl-ifplugd@${netInterface}.service
 
 printf "${BLUE}Setup basic programs...${NORMAL}\n"
-silentpacman -S wget curl
+silentpacman -S wget curl git
 
 printf "${BLUE}Setup working user...${NORMAL}\n"
 read -p "Username of new user:[archi] " -r
@@ -130,11 +130,12 @@ silentpacman -S zsh
 exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 exeAsUser $userName chmod u+x oh-my-zsh
 exeAsUser $userName sed -i "/env\szsh/d" oh-my-zsh
+
 exeAsUser $userName ./oh-my-zsh
-exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
-exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
-exeAsUser $userName mkdir ~/bin
-exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > ~/.zshenv
+exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" .zshrc
+exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' .zshrc
+exeAsUser $userName mkdir bin
+exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > .zshenv
 
 if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
