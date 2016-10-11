@@ -224,7 +224,10 @@ done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
 
-silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
+existentMaterial=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
+if [[ -n $existentMaterial ]]; then
+  silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
+fi
 
 case "$desktopEnv" in
   "cinnamon" )
