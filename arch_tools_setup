@@ -119,13 +119,13 @@ exeAsUser $userName tar -xvzf yaourt.tar.gz
 cd yaourt
 exeAsUser $userName makepkg -si --noconfirm
 
+cd ..
 rm -rf package-query yaourt
-
-exeAsUser $userName yaourt -Syy
-
 cd ~
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
+cd /home/$userName/
+
 silentpacman -S zsh
 exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 exeAsUser $userName chmod u+x oh-my-zsh
@@ -142,6 +142,10 @@ if [ -n "$http_proxy" ]; then
 fi
 
 echo "alias sudo='sudo '" >> /etc/zsh/zshenv
+
+cd ..
+rm -rf oh-my-zsh
+cd ~
 
 printf "${BLUE}Install Reflector...${NORMAL}\n"
 #Reflector for mirrorlist refreshing
