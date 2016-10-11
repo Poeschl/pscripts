@@ -9,7 +9,9 @@ silentpacman() {
 }
 
 silentyaourt() {
+  cd /home/$userName/
   exeAsUser $userName yaourt --noconfirm $@
+  cd ~
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -222,8 +224,6 @@ done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
 
-cd /home/$userName/
-
 silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 
 case "$desktopEnv" in
@@ -239,8 +239,6 @@ case "$desktopEnv" in
     xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
     ;;
 esac
-
-cd ~
 
 echo #
 read -p "Is the system running in a virtualbox environment? [yn]" -r
@@ -269,8 +267,6 @@ printf "${BLUE}Install IDEA Community Edition...${NORMAL}\n"
 silentpacman -S intellij-idea-community-edition
 
 printf "${BLUE}Install Android-SDK...${NORMAL}\n"
-cd /home/$userName/
-
 silentyaourt -S android-sdk
 groupadd androidsdk
 gpasswd -a $userName androidsdk
@@ -280,15 +276,9 @@ export ANDROID_HOME=/opt/android-sdk
 echo "export ANDROID_HOME=/opt/android-sdk" >> ~/.zshenv
 $ANDROID_HOME/tools/android update sdk --no-ui
 
-cd ~
-
 printf "${BLUE}Install ADB...${NORMAL}\n"
 silentpacman -S android-tools
 gpasswd -a $userName adbusers
 
 printf "${BLUE}Install Android Studio...${NORMAL}\n"
-cd /home/$userName/
-
 silentyaourt -S android-studio
-
-cd ~
