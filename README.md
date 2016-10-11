@@ -26,12 +26,12 @@ To get them and execute them via the github link use:
 
 For arch_raw_setup
 ```shell
-sh -c "$(wget -O - https://git.io/vPzq7)"
+sh -c "$(wget -O - https://git.io/vPzYQ)"
 ```
 
 For arch_tools_setup
 ```shell
-sh -c "$(wget -O - https://git.io/vPzqN)"
+sh -c "$(wget -O - https://git.io/vPzYA)"
 ```
 
 Remember to have a working internet connection and wget installed.
