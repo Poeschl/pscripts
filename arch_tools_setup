@@ -203,7 +203,7 @@ systemctl enable lightdm.service
 
 desktopEnv=""
 until [ -n "$desktopEnv" ]; do
-echo "Which desktop environment you want to have installed ?"
+printf "\n${YELLOW}Which desktop environment you want to have installed ?${NORMAL}\n"
 echo "1] Cinnamon"
 echo "2] Xfce 4"
 read -n 1 desktopSelection
