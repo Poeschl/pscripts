@@ -187,7 +187,7 @@ echo "restrict 127.0.0.1" >> /etc/ntp.conf
 
 systemctl enable ntpd.service
 
-time = $(date)
+time=$(date)
 printf "Current time: ${YELLOW}$time${NORMAL}\n"
 
 printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
