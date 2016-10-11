@@ -194,7 +194,7 @@ printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
 silentpacman -S acpid avahi cups mesa-libgl
 
 systemctl enable acpid.service
-systemctl enable avahi-daemon.service.service
+systemctl enable avahi-daemon.service
 systemctl enable org.cups.cupsd.service
 
 printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
