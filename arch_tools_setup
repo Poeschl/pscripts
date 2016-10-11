@@ -127,7 +127,10 @@ cd ~
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 silentpacman -S zsh
-sudo -H -u $userName -s /bin/zsh sh -c "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+chmod a+x oh-my-zsh
+sed -i "/env\szsh/d" oh-my-zsh
+exeAsUser $userName ./oh-my-zsh
 sudo -H -u $userName sh -c "
 sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
 sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' ~/.zshrc
