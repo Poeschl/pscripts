@@ -237,9 +237,11 @@ case "$desktopEnv" in
     gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
     gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
     gsettings set org.cinnamon.theme name "Adapta-Nokto"
+    ;;
   "xfce" )
     xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
     xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
+    ;;
 esac
 
 cd ~
