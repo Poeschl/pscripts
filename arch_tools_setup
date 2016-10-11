@@ -114,8 +114,9 @@ printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
 sudo passwd -l root
 
 printf "${BLUE}Install yaourt...${NORMAL}\n"
-exeAsUser $userName wget -O ~/yaourt http://sprunge.us/DgBH
-exeAsUser $userName ~/yaourt
+exeAsUser $userName wget -O /home/$userName/yaourt-install https://raw.githubusercontent.com/Phifo/yaourt/master/yaourt-install
+chmod a+x /home/$userName/yaourt-install
+exeAsUser $userName /home/$userName/yaourt-install
 
 exeAsUser $userName yaourt -Syy
 
