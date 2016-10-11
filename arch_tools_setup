@@ -153,7 +153,6 @@ chsh -s $(grep /zsh$ /etc/shells | tail -1)
 
 echo "alias sudo='sudo '" >> /etc/zsh/zshenv
 
-cd ..
 rm -rf oh-my-zsh
 cd ~
 
