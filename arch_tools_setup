@@ -81,9 +81,7 @@ silentpacman -S networkmanager
 systemctl enable NetworkManager.service
 
 printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
-silentpacman -S wget curl git
-
-silentpacman -S acpid dbus avahi cups cronie
+silentpacman -S wget curl git acpid dbus avahi cups cronie mesa-libgl
 
 systemctl enable acpid
 systemctl enable dbus
