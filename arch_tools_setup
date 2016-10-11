@@ -225,6 +225,9 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
+
+cd /home/$userName/
+
 silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 
 case "$desktopEnv" in
@@ -238,6 +241,8 @@ case "$desktopEnv" in
     xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
     xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
 esac
+
+cd ~
 
 echo #
 read -p "Is the system running in a virtualbox environment? [yn]" -r
