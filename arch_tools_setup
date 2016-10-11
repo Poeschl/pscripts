@@ -77,8 +77,8 @@ if [ -n "$http_proxy" ]; then
 fi
 
 printf "${BLUE}Setup network...${NORMAL}\n"
-
-systemctl enable networkmanager
+silentpacman -S networkManager
+systemctl enable NetworkManager.service
 
 printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
 silentpacman -S wget curl git
@@ -189,17 +189,6 @@ time = $(date)
 printf "Current time: ${YELLOW}$time${NORMAL}\n"
 hwclock -w
 
-echo #
-read -p "Is the system running in a virtualbox environment? [yn]" -r
-echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
-  systemctl enable vboxservice.service
-else
-  printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
-fi
-
 printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
 silentpacman -S lightdm lightdm-gtk-greeter
 systemctl enable lightdm.service
@@ -239,6 +228,17 @@ case "$desktopEnv" in
     xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
     xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
 esac
+
+echo #
+read -p "Is the system running in a virtualbox environment? [yn]" -r
+echo    # move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
+  systemctl enable vboxservice.service
+else
+  printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
+fi
 
 printf "${BLUE}Install gedit...${NORMAL}\n"
 silentpacman -S gedit
