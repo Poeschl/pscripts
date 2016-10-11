@@ -92,13 +92,7 @@ printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
 
 printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
-silentpacman -S wget curl git acpid dbus avahi cups cronie mesa-libgl
-
-systemctl enable acpid
-systemctl enable dbus
-systemctl enable avahi
-systemctl enable cups
-systemctl enable cronie
+silentpacman -S wget curl git
 
 printf "${BLUE}Setup working user...${NORMAL}\n"
 read -p "Username of new user:[archi] " -r
@@ -197,6 +191,15 @@ ntpd -gq
 time = $(date)
 printf "Current time: ${YELLOW}$time${NORMAL}\n"
 hwclock -w
+
+printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
+silentpacman -S acpid dbus avahi cups cronie mesa-libgl
+
+systemctl enable acpid
+systemctl enable dbus
+systemctl enable avahi
+systemctl enable cups
+systemctl enable cronie
 
 printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
 silentpacman -S lightdm lightdm-gtk-greeter
