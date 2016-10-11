@@ -94,7 +94,8 @@ then
   userName=$REPLY
 fi
 
-if id "$userName" >/dev/null 2>&1; then
+id "$userName"
+if [[ $?=0 ]]; then
   printf "${YELLOW}User already there, using exiting one.${NORMAL}\n"
 else
   useradd -m -G wheel $userName
