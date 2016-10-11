@@ -24,11 +24,12 @@ This are my installation scripts for fresh linux arch systems. They install my b
 
 ### Important:
 
+* A working internet connection is needed. (`dhcpcd` is your friend)
 * You need to give the root partition more then 10 GiB. The android-sdk is filling your system otherwise.
 
 ### How to get it:
 
-To get them and execute them via the github link use:
+To get them and execute them via the github link use (`wget` needs to be installed):
 
 For arch_raw_setup
 ```shell
@@ -39,5 +40,3 @@ For arch_tools_setup
 ```shell
 sh -c "$(wget -O - https://git.io/vPzYA)"
 ```
-
-Remember to have a working internet connection and wget installed.
