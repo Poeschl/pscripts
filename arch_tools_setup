@@ -95,7 +95,7 @@ then
 fi
 
 id "$userName"
-if [[ $?=0 ]]; then
+if [ $?=0 ]; then
   printf "${YELLOW}User already there, using exiting one.${NORMAL}\n"
 else
   useradd -m -G wheel $userName
@@ -227,9 +227,8 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
-
 existentMaterial=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
-if [[ -n $existentMaterial ]]; then
+if [ -n $existentMaterial ]; then
   silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 fi
 
