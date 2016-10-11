@@ -93,7 +93,7 @@ then
   userName=$REPLY
 fi
 
-sudo useradd -m -G wheel -s /bin/zsh $userName
+sudo useradd -m -G wheel $userName
 passwd $username
 
 currentUser=$(exeAsUser $userName whoami)
