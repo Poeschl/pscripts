@@ -129,7 +129,7 @@ cd ~
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
 cd /home/$userName/
 
-if [ ! -f .oh-my-zsh ]; then
+if [ ! -f .zshrc ]; then
   silentpacman -S zsh
   exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
   exeAsUser $userName chmod u+x oh-my-zsh
