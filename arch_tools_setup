@@ -120,7 +120,7 @@ cd yaourt
 exeAsUser $userName makepkg -si --noconfirm
 
 cd ..
-rm -rf package-query yaourt
+rm -rf package-query* yaourt*
 cd ~
 
 printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
@@ -132,10 +132,10 @@ exeAsUser $userName chmod u+x oh-my-zsh
 exeAsUser $userName sed -i "/env\szsh/d" oh-my-zsh
 
 exeAsUser $userName ./oh-my-zsh
-exeAsUser $userName sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" .zshrc
-exeAsUser $userName sed -i '/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/' .zshrc
+sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" /home/$userName/.zshrc
+sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" /home/$userName/.zshrc
 exeAsUser $userName mkdir bin
-exeAsUser $userName echo "export PATH=$HOME/bin:$PATH%" > .zshenv
+echo "export PATH=$HOME/bin:$PATH%" > /home/$userName/.zshenv
 
 if [ -n "$http_proxy" ]; then
   echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
