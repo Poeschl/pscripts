@@ -77,13 +77,13 @@ if [ -n "$http_proxy" ]; then
 fi
 
 printf "${BLUE}Setup network...${NORMAL}\n"
-silentpacman -S networkManager
+silentpacman -S networkmanager
 systemctl enable NetworkManager.service
 
 printf "${BLUE}Setup basic programs and services...${NORMAL}\n"
 silentpacman -S wget curl git
 
-pacman -S acpid dbus avahi cups cronie
+silentpacman -S acpid dbus avahi cups cronie
 
 systemctl enable acpid
 systemctl enable dbus
