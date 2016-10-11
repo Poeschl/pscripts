@@ -86,6 +86,9 @@ fi
 printf "${BLUE}Setup network...${NORMAL}\n"
 systemctl enable dhcpcd@eth0
 
+printf "${BLUE}Enable multilib repository...${NORMAL}\n"
+sed -i "s|^#\[multilib\]|[multilib]\nInclude = /etc/pacman.d/mirrorlist|" /etc/pacman.conf
+
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
 
