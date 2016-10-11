@@ -144,6 +144,9 @@ if [ -n "$http_proxy" ]; then
   echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
 fi
 
+#set zsh also for root
+chsh -s $(grep /zsh$ /etc/shells | tail -1)
+
 echo "alias sudo='sudo '" >> /etc/zsh/zshenv
 
 cd ..
