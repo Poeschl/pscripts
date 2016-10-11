@@ -13,7 +13,7 @@ silentpacman() {
 }
 
 silentyaourt() {
-  yaourt --noconfirm $@
+  exeAsUser $userName yaourt --noconfirm $@
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -43,6 +43,8 @@ set -e
 
 echo "This will install some tools on your system:"
 echo "* yaourt"
+echo "* zShell + oh-my-zsh"
+echo "* Virtualbox extensions (optional)"
 echo "* System tools"
 echo "* Desktop Environment"
 echo "* Development Environment"
@@ -157,7 +159,6 @@ sed -i '/--country/d' /etc/reflector.conf
 echo "--country Germany" >> /etc/reflector.conf
 
 systemctl enable reflector.timer
-systemctl start reflector.service
 
 printf "${BLUE}Install nano...${NORMAL}\n"
 silentpacman -S nano
