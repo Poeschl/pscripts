@@ -9,7 +9,11 @@ exeAsUser() {
 }
 
 silentpacman() {
-  echo 'j' | sudo pacman $@
+  sudo pacman --noconfirm $@
+}
+
+silentyaourt() {
+  sudo yaourt --noconfirm $@
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -108,12 +112,12 @@ cd /home/$userName/
 exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
 exeAsUser $userName tar -xvzf package-query.tar.gz
 cd package-query
-exeAsUser $userName makepkg -si
+exeAsUser $userName makepkg -si --noconfirm
 cd ..
 exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 exeAsUser $userName tar -xvzf yaourt.tar.gz
 cd yaourt
-exeAsUser $userName makepkg -si
+exeAsUser $userName makepkg -si --noconfirm
 
 # rm -rf package-query yaourt
 
@@ -139,7 +143,7 @@ echo "alias sudo='sudo '" >> /etc/zsh/zshenv
 printf "${BLUE}Install Reflector...${NORMAL}\n"
 #Reflector for mirrorlist refreshing
 sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-sudo yaourt -S reflector-timer-weekly
+silentyaourt -S reflector-timer-weekly
 
 sudo sed -i '/--country/d' /etc/reflector.conf
 sudo echo "--country Germany" >> /etc/reflector.conf
@@ -204,7 +208,7 @@ esac
 done
 
 printf "${BLUE}Install Material Look...${NORMAL}\n"
-sudo yaourt -S paper-icon-theme adapta-gtk-theme ttf-roboto
+silentyaourt -S paper-icon-theme adapta-gtk-theme ttf-roboto
 
 case "$desktopEnv" in
   "cinnamon" )
@@ -222,7 +226,7 @@ printf "${BLUE}Install gedit...${NORMAL}\n"
 silentpacman -S gedit
 
 printf "${BLUE}Install google-chrome...${NORMAL}\n"
-sudo yaourt -S google-chrome
+silentyaourt -S google-chrome
 
 printf "${BLUE}Install atom...${NORMAL}\n"
 silentpacman -S atom
@@ -234,7 +238,7 @@ printf "${BLUE}Install IDEA Community Edition...${NORMAL}\n"
 silentpacman -S intellij-idea-community-edition
 
 printf "${BLUE}Install Android-SDK...${NORMAL}\n"
-sudo yaourt -S android-sdk
+silentyaourt -S android-sdk
 sudo groupadd androidsdk
 sudo gpasswd -a $currentUser androidsdk
 sudo chown -R :sdkusers /opt/android-sdk/
@@ -248,4 +252,4 @@ silentpacman -S android-tools
 sudo gpasswd -a $currentUser adbusers
 
 printf "${BLUE}Install Android Studio...${NORMAL}\n"
-sudo yaourt -S android-studio
+silentyaourt -S android-studio
