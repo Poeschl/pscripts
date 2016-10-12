@@ -4,6 +4,186 @@ exeOnInstall() {
   arch-chroot /mnt $@
 }
 
+partitionHarddrive() {
+  echo #
+  read -p "Please specify the device to format and install arch on:[/dev/sda] " -r
+  echo    # move to a new line
+  installDev="/dev/sda"
+  if [ ! -z $REPLY ];
+  then
+    installDev=$REPLY
+  fi
+
+  printf "${BLUE}Partition harddisk...${NORMAL}\n"
+  ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
+  swapSize=`expr $ramSize / 4`
+  swapSize=`expr $ramSize + $swapSize`
+  swapSize=`expr $swapSize / 1024`
+  swapSize+="M"
+  echo "Estimated SWAP size: $swapSize"
+
+  sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
+    n # new
+    1 # first partition
+      # default start sector
+    +512M # 512 MB UEFI partition
+    EF00 # UEFI type
+    n # new
+    2 # first partition
+      # default start sector
+    +$swapSize # SWAP size
+    8200 # SWAP type
+    n # new
+    3 # first partition
+      # default start sector
+      # default end sector (all free space)
+    8e00 # linux lvm filesystem
+    p # print the in-memory partition table
+    w # write the partition table
+    y # accept changes
+  EOF
+
+  echo #
+  read -p "How big should the root partition be:[10G] " -r
+  echo    # move to a new line
+  rootPartSize="10G"
+  if [ ! -z $REPLY ];
+  then
+    rootPartSize=$REPLY
+  fi
+
+  pvcreate ${installDev}3
+  vgcreate lvm ${installDev}3
+  lvcreate --name root -L${rootPartSize} lvm # root partition
+  lvcreate --name home -l100%FREE lvm  # home partition
+  lvscan
+
+  printf "${BLUE}Format partitions...${NORMAL}\n"
+
+  mkfs.fat -F 32 ${installDev}1
+  mkswap -L swap ${installDev}2
+  mkfs.ext4 -L root /dev/lvm/root
+  mkfs.ext4 -L home /dev/lvm/home
+
+  printf "${BLUE}Mount partitions...${NORMAL}\n"
+
+  mount /dev/lvm/root /mnt # root
+  mkdir -p /mnt/home
+  mount /dev/lvm/home /mnt/home # home
+  mkdir -p /mnt/boot
+  mount ${installDev}1 /mnt/boot # EFI
+
+  swapon -L swap
+}
+
+installArch() {
+  printf "${BLUE}Update german mirrorlist...${NORMAL}\n"
+  mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+  wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on"
+  sed -i "/^#Server/s/^#//" /etc/pacman.d/mirrorlist
+
+  printf "${BLUE}Install Arch linux to disk...${NORMAL}\n"
+  pacstrap /mnt base base-devel
+
+  printf "${BLUE}Generate fstab...${NORMAL}\n"
+  genfstab -Lp /mnt > /mnt/etc/fstab
+  cat /mnt/etc/fstab
+
+  printf "${BLUE}Config system...${NORMAL}\n"
+  echo #
+  read -p "Hostname: [arch]" -r
+  echo    # move to a new line
+  hostname="arch"
+  if [ ! -z $REPLY ];
+  then
+    hostname=$REPLY
+  fi
+}
+
+setupSystem() {
+  echo $hostname > /mnt/etc/hostname
+
+
+  printf "${BLUE}Setup german keyboard...${NORMAL}\n"
+  echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
+  echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
+
+  printf "${BLUE}Setup german locale...${NORMAL}\n"
+  echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
+  echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
+  echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
+
+  cp /mnt/etc/locale.gen /mnt/etc/locale.gen.bak
+  sed -i "/^#de_DE.UTF-8/s/^#//" /mnt/etc/locale.gen
+  sed -i "/^#de_DE\sISO-8859-1/s/^#//" /mnt/etc/locale.gen
+  sed -i "/^#en_US.UTF-8/s/^#//" /mnt/etc/locale.gen
+  exeOnInstall locale-gen
+
+  printf "${BLUE}Setup timezone...${NORMAL}\n"
+  exeOnInstall ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+
+  printf "${BLUE}Copy mirrorlist to installed system...${NORMAL}\n"
+  cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+  printf "${BLUE}Add 'wheel' to sudoers file...${NORMAL}\n"
+  #make the group wheel ready to use with sudo
+  sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /mnt/etc/sudoers
+}
+
+installKernel() {
+  printf "${BLUE}Install kernel...${NORMAL}\n"
+  sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpio.conf
+  exeOnInstall mkinitcpio -p linux
+}
+
+installGrub() {
+  printf "${BLUE}Install GRUB...${NORMAL}\n"
+  exeOnInstall pacman --noconfirm -S grub efibootmgr
+
+  exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+  exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+installBasics() {
+  printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
+  exeOnInstall pacman --noconfirm -S wget curl git
+
+  networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
+  exeOnInstall systemctl enable dhcpcd@$networkInterface
+
+  if [ -n "$http_proxy" ]; then
+    #make a proxy available for sudo
+    echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
+    echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
+  fi
+}
+
+enableMultilib() {
+  printf "${BLUE}Enable multilib repository...${NORMAL}\n"
+  sed -i "s|^#\[multilib\]|[multilib]\nInclude = /etc/pacman.d/mirrorlist|" /mnt/etc/pacman.conf
+}
+
+setupUsers() {
+  printf "${BLUE}Set root password...${NORMAL}\n"
+  exeOnInstall passwd
+
+  printf "${BLUE}Setup non-root user...${NORMAL}\n"
+  read -p "Username of new user:[archi] " -r
+  echo    # move to a new line
+  userName="archi"
+  if [ ! -z $REPLY ];
+  then
+    userName=$REPLY
+  fi
+
+  exeOnInstall useradd -m -G wheel $userName
+  exeOnInstall passwd $userName
+  printf "Created non-root user: ${YELLOW}$userName${NORMAL}\n"
+
+  printf "${BLUE}Disable root login...${NORMAL}\n"
+  passwd -l root
+}
+
 # Use colors, but only if connected to a terminal, and that terminal
 # supports them.
 if which tput >/dev/null 2>&1; then
@@ -36,7 +216,10 @@ echo "  1. partition: UEFI (512 MB)"
 echo "  2. partition: SWAP (1.25 times your RAM)"
 echo "  3. partition: ROOT (user-defined)"
 echo "  4. partition: HOME (user-defined)"
-echo "* German keyboard and locale"
+echo "* Setup german locale"
+echo "* Enable multilib repository"
+echo "* Creates working user and disables root login"
+echo "* Installs grub"
 echo #
 read -p "Are you sure you want that?[yn] " -r
 echo    # move to a new line
@@ -61,148 +244,14 @@ else
   exit 1
 fi
 
-echo #
-read -p "Please specify the device to format and install arch on:[/dev/sda] " -r
-echo    # move to a new line
-installDev="/dev/sda"
-if [ ! -z $REPLY ];
-then
-  installDev=$REPLY
-fi
-
-printf "${BLUE}Set german keyboard...${NORMAL}\n"
-loadkeys de-latin1
-
-printf "${BLUE}Partition harddisk...${NORMAL}\n"
-ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
-swapSize=`expr $ramSize / 4`
-swapSize=`expr $ramSize + $swapSize`
-swapSize=`expr $swapSize / 1024`
-swapSize+="M"
-echo "Estimated SWAP size: $swapSize"
-
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
-  n # new
-  1 # first partition
-    # default start sector
-  +512M # 512 MB UEFI partition
-  EF00 # UEFI type
-  n # new
-  2 # first partition
-    # default start sector
-  +$swapSize # SWAP size
-  8200 # SWAP type
-  n # new
-  3 # first partition
-    # default start sector
-    # default end sector (all free space)
-  8e00 # linux lvm filesystem
-  p # print the in-memory partition table
-  w # write the partition table
-  y # accept changes
-EOF
-
-echo #
-read -p "How big should the root partition be:[10G] " -r
-echo    # move to a new line
-rootPartSize="10G"
-if [ ! -z $REPLY ];
-then
-  rootPartSize=$REPLY
-fi
-
-pvcreate ${installDev}3
-vgcreate lvm ${installDev}3
-lvcreate --name root -L${rootPartSize} lvm # root partition
-lvcreate --name home -l100%FREE lvm  # home partition
-lvscan
-
-printf "${BLUE}Format partitions...${NORMAL}\n"
-
-mkfs.fat -F 32 ${installDev}1
-mkswap -L swap ${installDev}2
-mkfs.ext4 -L root /dev/lvm/root
-mkfs.ext4 -L home /dev/lvm/home
-
-printf "${BLUE}Mount partitions...${NORMAL}\n"
-
-mount /dev/lvm/root /mnt # root
-mkdir -p /mnt/home
-mount /dev/lvm/home /mnt/home # home
-mkdir -p /mnt/boot
-mount ${installDev}1 /mnt/boot # EFI
-
-swapon -L swap
-
-printf "${BLUE}Install Arch linux to disk...${NORMAL}\n"
-mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=DE&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on"
-sed -i "/^#Server/s/^#//" /etc/pacman.d/mirrorlist
-
-pacstrap /mnt base base-devel
-
-printf "${BLUE}Generate fstab...${NORMAL}\n"
-genfstab -Lp /mnt > /mnt/etc/fstab
-cat /mnt/etc/fstab
-
-printf "${BLUE}Config system...${NORMAL}\n"
-echo #
-read -p "Hostname: [arch]" -r
-echo    # move to a new line
-hostname="arch"
-if [ ! -z $REPLY ];
-then
-  hostname=$REPLY
-fi
-
-echo $hostname > /mnt/etc/hostname
-
-echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
-echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
-echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
-
-echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
-echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
-
-exeOnInstall ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
-cp /mnt/etc/locale.gen /mnt/etc/locale.gen.bak
-sed -i "/^#de_DE.UTF-8/s/^#//" /mnt/etc/locale.gen
-sed -i "/^#de_DE\sISO-8859-1/s/^#//" /mnt/etc/locale.gen
-sed -i "/^#en_US.UTF-8/s/^#//" /mnt/etc/locale.gen
-exeOnInstall locale-gen
-
-cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
-
-exeOnInstall pacman -Syy
-
-#make the group wheel ready to use with sudo
-sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /mnt/etc/sudoers
-
-printf "${BLUE}Install kernel...${NORMAL}\n"
-sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpio.conf
-exeOnInstall mkinitcpio -p linux
-
-printf "${BLUE}Set root password...${NORMAL}\n"
-exeOnInstall passwd
-
-printf "${BLUE}Install GRUB...${NORMAL}\n"
-exeOnInstall pacman --noconfirm -S grub efibootmgr
-
-exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
-exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
-
-printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
-exeOnInstall pacman --noconfirm -S wget curl git
-
-networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
-exeOnInstall systemctl enable dhcpcd@$networkInterface
-
-if [ -n "$http_proxy" ]; then
-  #make a proxy available for sudo
-  echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
-  echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
-fi
+partitionHarddrive
+installArch
+setupSystem
+installKernel
+installGrub
+installBasics
+enableMultilib
+setupUsers
 
 umount /mnt/boot
 umount /mnt/home
