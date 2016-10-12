@@ -86,8 +86,7 @@ installArch() {
   pacstrap /mnt base base-devel
 
   printf "${BLUE}Generate fstab...${NORMAL}\n"
-  genfstab -Lp /mnt > /mnt/etc/fstab
-  cat /mnt/etc/fstab
+  genfstab -Lp /mnt | tee /mnt/etc/fstab
 
   printf "${BLUE}Config system...${NORMAL}\n"
   echo #
@@ -101,17 +100,17 @@ installArch() {
 }
 
 setupSystem() {
-  echo $hostname > /mnt/etc/hostname
+  echo $hostname | tee /mnt/etc/hostname
 
 
   printf "${BLUE}Setup german keyboard...${NORMAL}\n"
-  echo "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
-  echo "FONT=lat9w-16" >> /mnt/etc/vconsole.conf
+  echo "KEYMAP=de-latin1" | tee /mnt/etc/vconsole.conf
+  echo "FONT=lat9w-16" | tee -a /mnt/etc/vconsole.conf
 
   printf "${BLUE}Setup german locale...${NORMAL}\n"
-  echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
-  echo "LC_COLLATE=C" >> /mnt/etc/locale.conf
-  echo "LANGUAGE=de_DE" >> /mnt/etc/locale.conf
+  echo "LANG=de_DE.UTF-8" | tee /mnt/etc/locale.conf
+  echo "LC_COLLATE=C" | tee -a /mnt/etc/locale.conf
+  echo "LANGUAGE=de_DE" | tee -a /mnt/etc/locale.conf
 
   cp /mnt/etc/locale.gen /mnt/etc/locale.gen.bak
   sed -i "/^#de_DE.UTF-8/s/^#//" /mnt/etc/locale.gen
@@ -154,8 +153,8 @@ installBasics() {
 
   if [ -n "$http_proxy" ]; then
     #make a proxy available for sudo
-    echo "Defaults env_keep += \"http_proxy\"" >> /mnt/etc/sudoers
-    echo "Defaults env_keep += \"https_proxy\"" >> /mnt/etc/sudoers
+    echo "Defaults env_keep += \"http_proxy\"" | tee -a /mnt/etc/sudoers
+    echo "Defaults env_keep += \"https_proxy\"" | tee -a /mnt/etc/sudoers
   fi
 }
 
@@ -183,6 +182,12 @@ setupUsers() {
 
   printf "${BLUE}Disable root login...${NORMAL}\n"
   passwd -l root
+}
+
+configPacman() {
+  printf "${BLUE}Config pacman colors...${NORMAL}\n"
+  sed -i "/^#colors/s/^#//" /etc/pacman.conf
+  echo "ILoveCandy" | tee -a /etc/pacman.conf
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -253,6 +258,7 @@ installGrub
 installBasics
 enableMultilib
 setupUsers
+configPacman
 
 umount /mnt/boot
 umount /mnt/home

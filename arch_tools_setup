@@ -13,7 +13,7 @@ installPackage() {
   silentpacman --needed -S $@
 }
 
-installPacaurPackage() {
+installAurPackage() {
   printf "${BLUE}Install $@...${NORMAL}\n"
   silentpacaur --needed -y $@
 }
@@ -301,12 +301,12 @@ installMaterialtheme
 installVirtualBoxext
 
 installPackage gedit
-installPacaurPackage google-chrome
+installAurPackage google-chrome
 installPackage atom
 installPackage jdk8-openjdk
 installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
-installPacaurPackage android-studio
+installAurPackage android-studio
 
 printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.\n And restart to see your new desktop environment.${NORMAL}\n"
