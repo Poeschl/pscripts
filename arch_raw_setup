@@ -146,9 +146,10 @@ installGrub() {
 
 installBasics() {
   printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
-  exeOnInstall pacman --noconfirm -S wget curl git tee
+  exeOnInstall pacman --noconfirm -S wget curl git
 
   networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
+  printf "Enable DHCP for ${YELLOW}$networkInterface${NORMAL}\n"
   exeOnInstall systemctl enable dhcpcd@$networkInterface
 
   if [ -n "$http_proxy" ]; then
