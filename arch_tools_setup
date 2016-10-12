@@ -48,11 +48,11 @@ installZsh() {
     sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
     sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" ~/.zshrc
     mkdir bin
-    echo "export PATH=$HOME/bin:\$PATH%" > ~/.zshenv
+    echo "export PATH=$HOME/bin:\$PATH%" | sudo tee ~/.zshenv
 
     if [ -n "$http_proxy" ]; then
-      sudo echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
-      sudo echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
+      echo "export http_proxy=$http_proxy" | sudo tee -a /etc/zsh/zshenv
+      echo "export https_proxy=$https_proxy" | sudo tee -a /etc/zsh/zshenv
     fi
 
     #set zsh also for root
