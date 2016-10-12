@@ -44,7 +44,7 @@ partitionHarddrive() {
       p # print the in-memory partition table
       w # write the partition table
       y # accept changes
-  EOF
+EOF
 
     echo #
     read -p "How big should the root partition be:[10G] " -r
