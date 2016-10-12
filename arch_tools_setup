@@ -64,6 +64,10 @@ installPacaur() {
 
   cd ..
   rm -rf pacaur_install
+
+  #set alias to prevent official package actions through pacaur.
+  #Personal setting
+  echo "alias pacaur='pacaur --aur '" | sudo tee -a /etc/zsh/zshenv
 }
 
 
