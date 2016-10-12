@@ -5,7 +5,7 @@ silentpacman() {
 }
 
 silentpacaur() {
-  pacaur --noconfirm $@
+  pacaur --aur --noconfirm --noedit $@
 }
 
 installPackage() {
