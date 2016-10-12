@@ -186,8 +186,8 @@ setupUsers() {
 
 configPacman() {
   printf "${BLUE}Config pacman colors...${NORMAL}\n"
-  sed -i "/^#colors/s/^#//" /etc/pacman.conf
-  echo "ILoveCandy" | tee -a /etc/pacman.conf
+  sed -i "/^#Colors/s/^#//" /mnt/etc/pacman.conf
+  sed -i "/^#Misc\soptions/s/$/\nILoveCandy/" /mnt/etc/pacman.conf
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
