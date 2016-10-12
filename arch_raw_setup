@@ -15,48 +15,59 @@ partitionHarddrive() {
   fi
 
   printf "${BLUE}Partition harddisk...${NORMAL}\n"
-  ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
-  swapSize=`expr $ramSize / 4`
-  swapSize=`expr $ramSize + $swapSize`
-  swapSize=`expr $swapSize / 1024`
-  swapSize+="M"
-  echo "Estimated SWAP size: $swapSize"
 
-  sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
-    n # new
-    1 # first partition
-      # default start sector
-    +512M # 512 MB UEFI partition
-    EF00 # UEFI type
-    n # new
-    2 # first partition
-      # default start sector
-    +$swapSize # SWAP size
-    8200 # SWAP type
-    n # new
-    3 # first partition
-      # default start sector
-      # default end sector (all free space)
-    8e00 # linux lvm filesystem
-    p # print the in-memory partition table
-    w # write the partition table
-    y # accept changes
-EOF
+  if [ -a "${installDev}/sda3" ]; then
 
-  echo #
-  read -p "How big should the root partition be:[10G] " -r
-  echo    # move to a new line
-  rootPartSize="10G"
-  if [ ! -z $REPLY ];
-  then
-    rootPartSize=$REPLY
+    ramSize=`sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo | grep -o --regexp "[0-9]*"`
+    swapSize=`expr $ramSize / 4`
+    swapSize=`expr $ramSize + $swapSize`
+    swapSize=`expr $swapSize / 1024`
+    swapSize+="M"
+    echo "Estimated SWAP size: $swapSize"
+
+    sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | gdisk $installDev
+      n # new
+      1 # first partition
+        # default start sector
+      +512M # 512 MB UEFI partition
+      EF00 # UEFI type
+      n # new
+      2 # first partition
+        # default start sector
+      +$swapSize # SWAP size
+      8200 # SWAP type
+      n # new
+      3 # first partition
+        # default start sector
+        # default end sector (all free space)
+      8e00 # linux lvm filesystem
+      p # print the in-memory partition table
+      w # write the partition table
+      y # accept changes
+  EOF
+
+    echo #
+    read -p "How big should the root partition be:[10G] " -r
+    echo    # move to a new line
+    rootPartSize="10G"
+    if [ ! -z $REPLY ];
+    then
+      rootPartSize=$REPLY
+    fi
+
+    pvcreate ${installDev}3
+    vgcreate lvm ${installDev}3
+    lvcreate --name root -L${rootPartSize} lvm # root partition
+    lvcreate --name home -l100%FREE lvm  # home partition
+    lvscan
+  else
+    printf "${YELLOW}Existing partitions. Please make sure to have them in following order:${NORMAL}\n"
+    echo "${installDev}/sda1 - efi boot partition"
+    echo "${installDev}/sda2 - swap partition"
+    echo "${installDev}/sda3 - lvm partition (lvm/root + lvm/home)"
+    echo "press enter to continue"
+    read -r
   fi
-
-  pvcreate ${installDev}3
-  vgcreate lvm ${installDev}3
-  lvcreate --name root -L${rootPartSize} lvm # root partition
-  lvcreate --name home -l100%FREE lvm  # home partition
-  lvscan
 
   printf "${BLUE}Format partitions...${NORMAL}\n"
 
