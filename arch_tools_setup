@@ -10,7 +10,7 @@ silentyaourt() {
 
 installPackage() {
   printf "${BLUE}Install $@...${NORMAL}\n"
-  silentpacman -S $@
+  silentpacman --needed -S $@
 }
 
 installYaourtPackage() {
