@@ -70,7 +70,7 @@ installZsh() {
 installReflektor() {
   printf "${BLUE}Install Reflector...${NORMAL}\n"
   #Reflector for mirrorlist refreshing
-  sudp cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+  sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
   silentyaourt -S reflector-timer-weekly
 
   echo "Setup german filter for mirrorlist"
