@@ -256,9 +256,6 @@ else
   exit 1
 fi
 
-printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
-sudo echo "" > /dev/null
-
 echo #
 read -p "Is a proxy setup needed?[yn] " -r
 echo    # move to a new line
@@ -271,6 +268,11 @@ then
   export https_proxy=$REPLY
 fi
 
+printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
+sudo echo "" > /dev/null
+
+# Temp raise of the /tmp/ folder size to 2GiB
+sudo mount -o remount,size=2G,noatime /tmp
 
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
