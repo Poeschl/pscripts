@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 exeOnInstall() {
-  arch-chroot /mnt $@
+  arch-chroot /mnt "$@"
 }
 
 partitionHarddrive() {
@@ -41,7 +41,7 @@ partitionHarddrive() {
     p # print the in-memory partition table
     w # write the partition table
     y # accept changes
-  EOF
+EOF
 
   echo #
   read -p "How big should the root partition be:[10G] " -r
@@ -176,8 +176,8 @@ setupUsers() {
     userName=$REPLY
   fi
 
-  exeOnInstall useradd -m -G wheel $userName
-  exeOnInstall passwd $userName
+  exeOnInstall useradd -m -G wheel "$userName"
+  exeOnInstall passwd "$userName"
   printf "Created non-root user: ${YELLOW}$userName${NORMAL}\n"
 
   printf "${BLUE}Disable root login...${NORMAL}\n"
