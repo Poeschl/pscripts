@@ -174,7 +174,7 @@ installMaterialtheme(){
 
 installVirtualBoxext(){
   echo #
-  read -p "Is the system running in a virtualbox environment? [yn]" -r
+  read -p "Is the system running in a virtualbox environment? [yn] " -r
   echo    # move to a new line
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
@@ -237,7 +237,7 @@ echo "* System tools"
 echo "* Desktop Environment"
 echo "* Development Environment"
 
-read -p "Are you sure you want that? [yn]" -r
+read -p "Are you sure you want that? [yn] " -r
 echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
