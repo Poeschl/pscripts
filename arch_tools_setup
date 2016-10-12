@@ -1,17 +1,206 @@
 #!/usr/bin/env bash
 
-exeAsUser() {
-  sudo -H -u $1 ${@:2}
-}
-
 silentpacman() {
-  pacman --noconfirm $@
+  sudo pacman --noconfirm $@
 }
 
 silentyaourt() {
-  cd /home/$userName/
-  exeAsUser $userName yaourt --noconfirm $@
+  yaourt --noconfirm $@
+}
+
+installPackage() {
+  printf "${BLUE}Install $@...${NORMAL}\n"
+  silentpacman -S $@
+}
+
+installYaourtPackage() {
+  printf "${BLUE}Install $@...${NORMAL}\n"
+  silentyaourt -S $@
+}
+
+installYaourt() {
+  printf "${BLUE}Install yaourt...${NORMAL}\n"
+
+  curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
+  tar -xvzf package-query.tar.gz
+  cd package-query
+  makepkg -si --noconfirm
+  cd ..
+  curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
+  tar -xvzf yaourt.tar.gz
+  cd yaourt
+  makepkg -si --noconfirm
+  cd ..
+  rm -rf package-query* yaourt*
   cd ~
+}
+
+
+installZsh() {
+  printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
+  if [ ! -f .zshrc ]; then
+    silentpacman -S zsh
+    wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+    sudo chmod u+x oh-my-zsh
+    sed -i "/env\szsh/d" oh-my-zsh
+
+    ./oh-my-zsh
+    sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
+    sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" ~/.zshrc
+    mkdir bin
+    echo "export PATH=$HOME/bin:\$PATH%" > ~/.zshenv
+
+    if [ -n "$http_proxy" ]; then
+      sudo echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
+      sudo echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
+    fi
+
+    #set zsh also for root
+    #sudo chsh -s $(grep /zsh$ /etc/shells | tail -1)
+
+    echo "alias sudo='sudo '" | sudo tee -a /etc/zsh/zshenv
+
+    rm -rf oh-my-zsh
+
+  else
+    printf "${YELLOW}oh-my-zsh already there, using exiting one.${NORMAL}\n"
+  fi
+}
+
+installReflektor() {
+  printf "${BLUE}Install Reflector...${NORMAL}\n"
+  #Reflector for mirrorlist refreshing
+  sudp cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+  silentyaourt -S reflector-timer-weekly
+
+  echo "Setup german filter for mirrorlist"
+  sudo sed -i '/--country/d' /etc/reflector.conf
+  echo "--country Germany" | sudo tee -a /etc/reflector.conf
+
+  echo "Enable reflector service"
+  sudo systemctl enable reflector.timer
+}
+
+installNano(){
+  printf "${BLUE}Install nano...${NORMAL}\n"
+  silentpacman -S nano
+  echo "export EDITOR=usr/bin/nano" | sudo tee -a /etc/zsh/zshenv
+}
+
+configureNTP() {
+  printf "${BLUE}Install and configure NTP...${NORMAL}\n"
+  silentpacman -S ntp
+
+  echo "Set german ntp server."
+  sudo sed -i.bak '/server/d' /etc/ntp.conf
+  echo "server 0.de.pool.ntp.org" | sudo tee -a /etc/ntp.conf
+  echo "server 1.de.pool.ntp.org" | sudo tee -a /etc/ntp.conf
+  echo "server 2.de.pool.ntp.org" | sudo tee -a /etc/ntp.conf
+  echo "server 3.de.pool.ntp.org" | sudo tee -a /etc/ntp.conf
+
+  echo "Restrict machine from being a ntp server."
+  #prevent the machine from being a time server
+  sudo sed -i.bak '/restrict/d' /etc/ntp.conf
+  echo "restrict default nomodify nopeer" | sudo tee -a /etc/ntp.conf
+  echo "restrict 127.0.0.1" | sudo tee -a /etc/ntp.conf
+
+  echo "Enable ntp service"
+  sudo systemctl enable ntpd.service
+
+  time=$(date)
+  printf "Current time: ${YELLOW}$time${NORMAL}\n"
+}
+
+installBasicServiceDrivers() {
+  printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
+  silentpacman -S acpid avahi cups mesa-libgl
+
+  echo "Enable services"
+  sudo systemctl enable acpid.service
+  sudo systemctl enable avahi-daemon.service
+  sudo systemctl enable org.cups.cupsd.service
+}
+
+installLightdm() {
+  printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
+  silentpacman -S lightdm lightdm-gtk-greeter
+  sudo systemctl enable lightdm.service
+}
+
+installDesktop() {
+  desktopEnv=""
+  until [ -n "$desktopEnv" ]; do
+  printf "\n${YELLOW}Which desktop environment you want to have installed ?${NORMAL}\n"
+  echo "1] Cinnamon"
+  echo "2] Xfce 4"
+  read -n 1 desktopSelection
+  echo #new line
+  case $desktopSelection in
+      1 )
+        printf "${BLUE}Install Cinnamon...${NORMAL}\n"
+        silentpacman -S cinnamon
+        desktopEnv="cinnamon"
+        ;;
+      2 )
+        printf "${BLUE}Install Xfce...${NORMAL}\n"
+        silentpacman -S xfce4
+        desktopEnv="xfce"
+        ;;
+  esac
+  done
+}
+
+installMaterialtheme(){
+  printf "${BLUE}Install Material Look...${NORMAL}\n"
+  exPaper=$(sudo pacman -Qs paper-icon-theme-git adapta-gtk-theme)
+  if [ -z $exPaper ]; then
+    silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
+  fi
+
+  case "$desktopEnv" in
+    "cinnamon" )
+      gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
+      gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
+      gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
+      gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
+      gsettings set org.cinnamon.theme name "Adapta-Nokto"
+      ;;
+    "xfce" )
+      xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
+      xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
+      ;;
+  esac
+}
+
+installVirtualBoxext(){
+  echo #
+  read -p "Is the system running in a virtualbox environment? [yn]" -r
+  echo    # move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
+    sudo systemctl enable vboxservice.service
+  else
+    printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
+  fi
+}
+
+installAndroidSdk() {
+  printf "${BLUE}Install Android-SDK...${NORMAL}\n"
+  silentyaourt -S android-sdk
+  sudo groupadd androidsdk
+  sudo gpasswd -a $userName androidsdk
+  sudo chown -R :sdkusers /opt/android-sdk/
+  sudo chmod -R g+w /opt/android-sdk/
+  export ANDROID_HOME=/opt/android-sdk
+  echo "export ANDROID_HOME=/opt/android-sdk" | sudo tee -a ~/.zshenv
+  $ANDROID_HOME/tools/android update sdk --no-ui
+}
+
+installAdb() {
+  printf "${BLUE}Install ADB...${NORMAL}\n"
+  silentpacman -S android-tools
+  sudo gpasswd -a $userName adbusers
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -55,6 +244,10 @@ then
   exit 1
 fi
 
+userName=$(whoami)
+printf "Current user: ${YELLOW}$userName${NORMAL}\n"
+cd ~
+
 ping -q -c2 archlinux.org > /dev/null
 if [ $? -eq 0 ]
 then
@@ -64,7 +257,8 @@ else
   exit 1
 fi
 
-printf "${RED}It is needed to get root rights for the following process!${NORMAL}\n"
+printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
+sudo echo "" > /dev/null
 
 echo #
 read -p "Is a proxy setup needed?[yn] " -r
@@ -79,206 +273,30 @@ then
 fi
 
 
-printf "${BLUE}Enable multilib repository...${NORMAL}\n"
-sed -i "s|^#\[multilib\]|[multilib]\nInclude = /etc/pacman.d/mirrorlist|" /etc/pacman.conf
-
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
 
-printf "${BLUE}Setup working user...${NORMAL}\n"
-read -p "Username of new user:[archi] " -r
-echo    # move to a new line
-userName="archi"
-if [ ! -z $REPLY ];
-then
-  userName=$REPLY
-fi
+installYaourt
+installZsh
+installReflektor
+installNano
+installPackage htop
+configureNTP
+installBasicServiceDrivers
 
-useradd -m -G wheel $userName
-passwd $userName
+installLightdm
+installDesktop
+installMaterialtheme
 
-currentUser=$(exeAsUser $userName whoami)
-printf "Current non-root user: ${YELLOW}$currentUser${NORMAL}\n"
+installVirtualBoxext
 
-passwd -l root
+installPackage gedit
+installYaourtPackage google-chrome
+installPackage atom
+installPackage jdk8-openjdk
+installPackage intellij-idea-community-edition
+installAndroidSdk
+installAdb
+installYaourtPackage android-studio
 
-printf "${BLUE}Install yaourt...${NORMAL}\n"
-
-cd /home/$userName/
-
-exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
-exeAsUser $userName tar -xvzf package-query.tar.gz
-cd package-query
-exeAsUser $userName makepkg -si --noconfirm
-cd ..
-exeAsUser $userName curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
-exeAsUser $userName tar -xvzf yaourt.tar.gz
-cd yaourt
-exeAsUser $userName makepkg -si --noconfirm
-
-cd ..
-rm -rf package-query* yaourt*
-cd ~
-
-printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
-cd /home/$userName/
-
-if [ ! -f .zshrc ]; then
-  silentpacman -S zsh
-  exeAsUser $userName wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-  exeAsUser $userName chmod u+x oh-my-zsh
-  exeAsUser $userName sed -i "/env\szsh/d" oh-my-zsh
-
-  exeAsUser $userName ./oh-my-zsh
-  sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" /home/$userName/.zshrc
-  sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" /home/$userName/.zshrc
-  exeAsUser $userName mkdir bin
-  echo "export PATH=$HOME/bin:\$PATH%" > /home/$userName/.zshenv
-
-  if [ -n "$http_proxy" ]; then
-    echo "export http_proxy=$http_proxy" >> /etc/zsh/zshenv
-    echo "export https_proxy=$https_proxy" >> /etc/zsh/zshenv
-  fi
-
-  #set zsh also for root
-  chsh -s $(grep /zsh$ /etc/shells | tail -1)
-
-  echo "alias sudo='sudo '" >> /etc/zsh/zshenv
-
-  rm -rf oh-my-zsh
-
-else
-  printf "${YELLOW}oh-my-zsh already there, using exiting one.${NORMAL}\n"
-fi
-cd ~
-
-printf "${BLUE}Install Reflector...${NORMAL}\n"
-#Reflector for mirrorlist refreshing
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-silentyaourt -S reflector-timer-weekly
-
-sed -i '/--country/d' /etc/reflector.conf
-echo "--country Germany" >> /etc/reflector.conf
-
-systemctl enable reflector.timer
-
-printf "${BLUE}Install nano...${NORMAL}\n"
-silentpacman -S nano
-echo "export EDITOR=usr/bin/nano" >> /etc/zsh/zshenv
-
-printf "${BLUE}Install htop...${NORMAL}\n"
-silentpacman -S htop
-
-printf "${BLUE}Configure NTP...${NORMAL}\n"
-silentpacman -S ntp
-
-sed -i.bak '/server/d' /etc/ntp.conf
-echo "server 0.de.pool.ntp.org" >> /etc/ntp.conf
-echo "server 1.de.pool.ntp.org" >> /etc/ntp.conf
-echo "server 2.de.pool.ntp.org" >> /etc/ntp.conf
-echo "server 3.de.pool.ntp.org" >> /etc/ntp.conf
-
-#prevent the machine from being a time server
-sed -i.bak '/restrict/d' /etc/ntp.conf
-echo "restrict default nomodify nopeer" >> /etc/ntp.conf
-echo "restrict 127.0.0.1" >> /etc/ntp.conf
-
-systemctl enable ntpd.service
-
-time=$(date)
-printf "Current time: ${YELLOW}$time${NORMAL}\n"
-
-printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
-silentpacman -S acpid avahi cups mesa-libgl
-
-systemctl enable acpid.service
-systemctl enable avahi-daemon.service
-systemctl enable org.cups.cupsd.service
-
-printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
-silentpacman -S lightdm lightdm-gtk-greeter
-systemctl enable lightdm.service
-
-desktopEnv=""
-until [ -n "$desktopEnv" ]; do
-printf "\n${YELLOW}Which desktop environment you want to have installed ?${NORMAL}\n"
-echo "1] Cinnamon"
-echo "2] Xfce 4"
-read -n 1 desktopSelection
-echo #new line
-case $desktopSelection in
-    1 )
-      printf "${BLUE}Install Cinnamon...${NORMAL}\n"
-      silentpacman -S cinnamon
-      desktopEnv="cinnamon"
-      ;;
-    2 )
-      printf "${BLUE}Install Xfce...${NORMAL}\n"
-      silentpacman -S xfce4
-      desktopEnv="xfce"
-      ;;
-esac
-done
-
-printf "${BLUE}Install Material Look...${NORMAL}\n"
-exPaper=$(pacman -Qs paper-icon-theme-git adapta-gtk-theme)
-if [ -z $exPaper ]; then
-  silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
-fi
-
-case "$desktopEnv" in
-  "cinnamon" )
-    gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
-    gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
-    gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
-    gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
-    gsettings set org.cinnamon.theme name "Adapta-Nokto"
-    ;;
-  "xfce" )
-    xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
-    xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
-    ;;
-esac
-
-echo #
-read -p "Is the system running in a virtualbox environment? [yn]" -r
-echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
-  systemctl enable vboxservice.service
-else
-  printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
-fi
-
-printf "${BLUE}Install gedit...${NORMAL}\n"
-silentpacman -S gedit
-
-printf "${BLUE}Install google-chrome...${NORMAL}\n"
-silentyaourt -S google-chrome
-
-printf "${BLUE}Install atom...${NORMAL}\n"
-silentpacman -S atom
-
-printf "${BLUE}Install JDK 8...${NORMAL}\n"
-silentpacman -S jdk8-openjdk
-
-printf "${BLUE}Install IDEA Community Edition...${NORMAL}\n"
-silentpacman -S intellij-idea-community-edition
-
-printf "${BLUE}Install Android-SDK...${NORMAL}\n"
-silentyaourt -S android-sdk
-groupadd androidsdk
-gpasswd -a $userName androidsdk
-chown -R :sdkusers /opt/android-sdk/
-chmod -R g+w /opt/android-sdk/
-export ANDROID_HOME=/opt/android-sdk
-echo "export ANDROID_HOME=/opt/android-sdk" >> ~/.zshenv
-$ANDROID_HOME/tools/android update sdk --no-ui
-
-printf "${BLUE}Install ADB...${NORMAL}\n"
-silentpacman -S android-tools
-gpasswd -a $userName adbusers
-
-printf "${BLUE}Install Android Studio...${NORMAL}\n"
-silentyaourt -S android-studio
+printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.${NORMAL}\n"

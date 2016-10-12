@@ -146,7 +146,7 @@ installGrub() {
 
 installBasics() {
   printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
-  exeOnInstall pacman --noconfirm -S wget curl git
+  exeOnInstall pacman --noconfirm -S wget curl git tee
 
   networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
   exeOnInstall systemctl enable dhcpcd@$networkInterface
