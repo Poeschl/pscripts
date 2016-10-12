@@ -331,6 +331,8 @@ installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
 installAurPackage android-studio
+installPackage audacity
+installPackage vlc
 
 cleanup
 
