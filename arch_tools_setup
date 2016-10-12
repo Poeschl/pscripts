@@ -4,10 +4,6 @@ silentpacman() {
   sudo pacman --noconfirm $@
 }
 
-silentyaourt() {
-  yaourt --noconfirm $@
-}
-
 silentpacaur() {
   pacaur --noconfirm $@
 }
@@ -17,31 +13,9 @@ installPackage() {
   silentpacman --needed -S $@
 }
 
-installYaourtPackage() {
-  printf "${BLUE}Install $@...${NORMAL}\n"
-  silentyaourt -S $@
-}
-
 installPacaurPackage() {
   printf "${BLUE}Install $@...${NORMAL}\n"
   silentpacaur --needed -y $@
-}
-
-installYaourt() {
-  printf "${BLUE}Install yaourt...${NORMAL}\n"
-
-  curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
-  tar -xvzf package-query.tar.gz
-  cd package-query
-  makepkg -si --noconfirm
-  cd ..
-  curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
-  tar -xvzf yaourt.tar.gz
-  cd yaourt
-  makepkg -si --noconfirm
-  cd ..
-  rm -rf package-query* yaourt*
-  cd ~
 }
 
 installPacaur() {
@@ -106,7 +80,7 @@ installReflektor() {
   printf "${BLUE}Install Reflector...${NORMAL}\n"
   #Reflector for mirrorlist refreshing
   sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-  silentyaourt -S reflector-timer-weekly
+  silentpacaur -S reflector-timer-weekly
 
   echo "Setup german filter for mirrorlist"
   sudo sed -i '/--country/d' /etc/reflector.conf
@@ -188,7 +162,7 @@ installDesktop() {
 installMaterialtheme(){
   printf "${BLUE}Install Material Look...${NORMAL}\n"
   if [ -z "$(pacman -Qs adapta-gtk-theme)" ]; then
-    silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
+    silentpacaur -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
   fi
 
   case "$desktopEnv" in
@@ -221,7 +195,7 @@ installVirtualBoxext(){
 
 installAndroidSdk() {
   printf "${BLUE}Install Android-SDK...${NORMAL}\n"
-  silentyaourt -S android-sdk
+  silentpacaur -S android-sdk
   sudo groupadd androidsdk
   sudo gpasswd -a $userName androidsdk
   sudo chown -R :androidsdk /opt/android-sdk/
@@ -264,7 +238,7 @@ set -e
 
 echo "This will install some tools on your system:"
 echo "* Creates user and disable root from login"
-echo "* yaourt"
+echo "* pacaur"
 echo "* zShell + oh-my-zsh"
 echo "* Virtualbox extensions (optional)"
 echo "* System tools"
@@ -312,7 +286,7 @@ sudo mount -o remount,size=2G,noatime /tmp
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
 
-installYaourt
+installPacaur
 installZsh
 installReflektor
 installNano
@@ -327,12 +301,12 @@ installMaterialtheme
 installVirtualBoxext
 
 installPackage gedit
-installYaourtPackage google-chrome
+installPacaurPackage google-chrome
 installPackage atom
 installPackage jdk8-openjdk
 installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
-installYaourtPackage android-studio
+installPacaurPackage android-studio
 
 printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.\n And restart to see your new desktop environment.${NORMAL}\n"
