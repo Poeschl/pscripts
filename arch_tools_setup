@@ -298,4 +298,4 @@ installAndroidSdk
 installAdb
 installYaourtPackage android-studio
 
-printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.${NORMAL}\n"
+printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.\n And restart to see your new desktop environment.${NORMAL}\n"
