@@ -152,7 +152,7 @@ installDesktop() {
 
 installMaterialtheme(){
   printf "${BLUE}Install Material Look...${NORMAL}\n"
-  exPaper=$(sudo pacman -Qs paper-icon-theme-git adapta-gtk-theme)
+  exPaper=$(sudo pacman -Qs adapta-gtk-theme)
   if [ -z $exPaper ]; then
     silentyaourt -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
   fi
