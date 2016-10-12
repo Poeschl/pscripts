@@ -196,7 +196,7 @@ setupUsers() {
 
 configPacman() {
   printf "${BLUE}Config pacman colors...${NORMAL}\n"
-  sed -i "/^#Colorss/^#//" /mnt/etc/pacman.conf
+  sed -i "/^#Colors/^#//" /mnt/etc/pacman.conf
   sed -i "/^#\sMisc\soptions/a ILoveCandy/" /mnt/etc/pacman.conf
 }
 

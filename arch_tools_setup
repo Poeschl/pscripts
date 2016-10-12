@@ -44,7 +44,7 @@ installPacaur() {
 installZsh() {
   printf "${BLUE}Install oh-my-zsh with plugins...${NORMAL}\n"
   if [ ! -f .zshrc ]; then
-    silentpacman -S zsh
+    silentpacman -S zsh zsh-completions
     wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
     sudo chmod u+x oh-my-zsh
     sed -i "/env\szsh/d" oh-my-zsh
@@ -122,62 +122,51 @@ configureNTP() {
 
 installBasicServiceDrivers() {
   printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
-  silentpacman -S acpid avahi cups mesa-libgl
+  silentpacman -S acpid cups mesa-libgl
 
   echo "Enable services"
   sudo systemctl enable acpid.service
-  sudo systemctl enable avahi-daemon.service
   sudo systemctl enable org.cups.cupsd.service
 }
 
 installLightdm() {
   printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
-  silentpacman -S lightdm lightdm-gtk-greeter
+  silentpacman -S lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings
   sudo systemctl enable lightdm.service
 }
 
 installDesktop() {
-  desktopEnv=""
-  until [ -n "$desktopEnv" ]; do
-  printf "\n${YELLOW}Which desktop environment you want to have installed ?${NORMAL}\n"
-  echo "1] Cinnamon"
-  echo "2] Xfce 4"
-  read -n 1 desktopSelection
-  echo #new line
-  case $desktopSelection in
-      1 )
-        printf "${BLUE}Install Cinnamon...${NORMAL}\n"
-        silentpacman -S cinnamon
-        desktopEnv="cinnamon"
-        ;;
-      2 )
-        printf "${BLUE}Install Xfce...${NORMAL}\n"
-        silentpacman -S xfce4
-        desktopEnv="xfce"
-        ;;
-  esac
-  done
+  printf "${BLUE}Install Cinnamon...${NORMAL}\n"
+  silentpacman -S cinnamon
 }
 
 installMaterialtheme(){
   printf "${BLUE}Install Material Look...${NORMAL}\n"
   if [ -z "$(pacman -Qs adapta-gtk-theme)" ]; then
     silentpacaur -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
-  fi
 
-  case "$desktopEnv" in
-    "cinnamon" )
-      gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
-      gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
-      gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
-      gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
-      gsettings set org.cinnamon.theme name "Adapta-Nokto"
-      ;;
-    "xfce" )
-      xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
-      xfconf-query -c xsettings -p /Net/IconThemeName -s "Paper"
-      ;;
-  esac
+    gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
+    gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
+    gsettings set org.cinnamon.theme name "Adapta-Nokto"
+    gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
+
+    gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
+    gsettings set org.nemo.desktop font "Roboto 10"
+    gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
+    gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
+
+    sudo sed -i "/^#user-background/atrue/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#theme-name/aAdapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#icon-theme-name/aPaper/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#font-name/aRoboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
+
+    sudo sed -i "/^#user-background/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#theme-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#icon-theme-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#font-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  fi
 }
 
 installVirtualBoxext(){
@@ -202,13 +191,45 @@ installAndroidSdk() {
   sudo chmod -R g+w /opt/android-sdk/
   export ANDROID_HOME=/opt/android-sdk
   echo "export ANDROID_HOME=/opt/android-sdk" | sudo tee -a ~/.zshenv
-  $ANDROID_HOME/tools/android update sdk --no-ui
+
+  if [ -n "$http_proxy" ]; then
+    #split address
+    proxyAddress=$(echo $http_proxy | tr ":" "\n")
+    echo "http.proxyHost=${proxyAddress[0]}" | tee ~/.android/androidtool.cfg
+    echo "http.proxyPort=${proxyAddress[1]}" | tee -a ~/.android/androidtool.cfg
+  fi
+
+  echo "y" | $ANDROID_HOME/tools/android update sdk --no-ui
 }
 
 installAdb() {
   printf "${BLUE}Install ADB...${NORMAL}\n"
   silentpacman -S android-tools
   #sudo gpasswd -a $userName adbusers
+}
+
+configXEnvironment() {
+  printf "${BLUE}Set german keyboard layout for X...${NORMAL}\n"
+  sudo localectl set-x11-keymap de pc105 nodeadkeys
+
+  printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
+  sudo systemctl enable NetworkManager.service
+
+  printf "${BLUE}Config visual appearence...${NORMAL}\n"
+  gsettings set org.nemo.desktop desktop-layout "true::true"
+  gsettings set org.nemo.desktop trash-icon-visible "true"
+  gsettings set org.nemo.desktop volumes-visible "true"
+  gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
+
+}
+
+cleanup() {
+  printf "${BLUE}Remove unused packages...${NORMAL}\n"
+  sudo pacman -Rs $(pacman -Qtdq)
+
+  printf "${BLUE}Remove not needed menu entries...${NORMAL}\n"
+  sudo rm /usr/share/applications/qv*.desktop
+  sudo sed -e "\$aNoDisplay=true" /usr/share/applications/electron.desktop
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -296,7 +317,9 @@ installBasicServiceDrivers
 
 installLightdm
 installDesktop
+configXEnvironment
 installMaterialtheme
+installPackage gnome-terminal
 
 installVirtualBoxext
 
@@ -308,5 +331,7 @@ installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
 installAurPackage android-studio
+
+cleanup
 
 printf "${YELLOW}Installed tools!\nPlease re-login to apply the made changes to your shell.\n And restart to see your new desktop environment.${NORMAL}\n"
