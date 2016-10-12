@@ -220,7 +220,7 @@ installAndroidSdk() {
   silentyaourt -S android-sdk
   sudo groupadd androidsdk
   sudo gpasswd -a $userName androidsdk
-  sudo chown -R :sdkusers /opt/android-sdk/
+  sudo chown -R :androidsdk /opt/android-sdk/
   sudo chmod -R g+w /opt/android-sdk/
   export ANDROID_HOME=/opt/android-sdk
   echo "export ANDROID_HOME=/opt/android-sdk" | sudo tee -a ~/.zshenv
@@ -230,7 +230,7 @@ installAndroidSdk() {
 installAdb() {
   printf "${BLUE}Install ADB...${NORMAL}\n"
   silentpacman -S android-tools
-  sudo gpasswd -a $userName adbusers
+  #sudo gpasswd -a $userName adbusers
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
