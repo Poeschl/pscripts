@@ -56,6 +56,7 @@ installZsh() {
     echo "export PATH=$HOME/bin:\$PATH%" | sudo tee ~/.zshenv
 
     if [ -n "$http_proxy" ]; then
+      printf "${BLUE}Add proxy to default zsh profile...${NORMAL}\n"
       echo "export http_proxy=$http_proxy" | sudo tee -a /etc/zsh/zshenv
       echo "export https_proxy=$https_proxy" | sudo tee -a /etc/zsh/zshenv
     fi
@@ -145,6 +146,7 @@ installMaterialtheme(){
   if [ -z "$(pacman -Qs adapta-gtk-theme)" ]; then
     silentpacaur -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 
+    printf "${BLUE}Setup Material Look...${NORMAL}\n"
     gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
     gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
     gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
@@ -157,17 +159,17 @@ installMaterialtheme(){
     gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
     gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
 
-    sudo sed -i "/^#user-background/atrue/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#theme-name/aAdapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#icon-theme-name/aPaper/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#font-name/aRoboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#background/a#888a85/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#user-background/s/$/true" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#theme-name/s/$/Adapta-Nokto" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#icon-theme-name/s/$/Paper" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#font-name/s/$/Roboto 10" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#background/s/$/#888a85" /etc/lightdm/lightdm-gtk-greeter.conf
 
-    sudo sed -i "/^#user-background/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#theme-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#icon-theme-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#font-name/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#background/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#icon-theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
   fi
 }
 
@@ -293,18 +295,6 @@ then
 else
   printf "${RED}No internet available, please check the connectivity and try again!${NORMAL}\n"
   exit 1
-fi
-
-echo #
-read -p "Is a proxy setup needed?[yn] " -r
-echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  echo #
-  read -p "Enter the address of the proxy:" -r
-  echo    # move to a new line
-  export http_proxy=$REPLY
-  export https_proxy=$REPLY
 fi
 
 printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"

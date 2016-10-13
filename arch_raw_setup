@@ -165,6 +165,10 @@ installBasics() {
     #make a proxy available for sudo
     echo "Defaults env_keep += \"http_proxy\"" | tee -a /mnt/etc/sudoers
     echo "Defaults env_keep += \"https_proxy\"" | tee -a /mnt/etc/sudoers
+
+    printf "${BLUE}Put proxy into /etc/profile for bash...${NORMAL}\n"
+    echo "export http_proxy=$http_proxy" | sudo tee -a /mnt/etc/profile
+    echo "export https_proxy=$https_proxy" | sudo tee -a /mnt/etc/profile
   fi
 }
 
