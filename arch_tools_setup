@@ -159,11 +159,11 @@ installMaterialtheme(){
     gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
     gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
 
-    sudo sed -i "/^#user-background/s/$/true" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#theme-name/s/$/Adapta-Nokto" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#icon-theme-name/s/$/Paper" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#font-name/s/$/Roboto 10" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#background/s/$/#888a85" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#user-background/s/$/true/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#theme-name/s/$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#icon-theme-name/s/$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#font-name/s/$/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "/^#background/s/$/#888a85/" /etc/lightdm/lightdm-gtk-greeter.conf
 
     sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
