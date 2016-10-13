@@ -21,23 +21,25 @@ installAurPackage() {
 installPacaur() {
   printf "${BLUE}Install pacaur...${NORMAL}\n"
 
-  mkdir -p pacaur_install
-  cd pacaur_install
-  # Install pacaur dependencies from arch repos
-  silentpacman -S expac yajl git
+  if [ -z "$(pacman -Qs pacaur)" ]; then
+    mkdir -p pacaur_install
+    cd pacaur_install
+    # Install pacaur dependencies from arch repos
+    silentpacman -S expac yajl git
 
-  # Install "cower" from AUR
-  curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=cower
-  makepkg PKGBUILD --skippgpcheck
-  silentpacman -U cower*.tar.xz
+    # Install "cower" from AUR
+    curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=cower
+    makepkg PKGBUILD --skippgpcheck
+    silentpacman -U cower*.tar.xz
 
-  # Install "pacaur" from AUR
-  curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pacaur
-  makepkg PKGBUILD
-  silentpacman -U pacaur*.tar.xz
+    # Install "pacaur" from AUR
+    curl -o PKGBUILD https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=pacaur
+    makepkg PKGBUILD
+    silentpacman -U pacaur*.tar.xz
 
-  cd ..
-  rm -rf pacaur_install
+    cd ..
+    rm -rf pacaur_install
+  fi
 }
 
 
