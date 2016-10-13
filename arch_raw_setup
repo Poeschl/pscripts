@@ -206,8 +206,8 @@ configPacman() {
 
 downloadToolScript() {
   wget -O /mnt/home/$userName/arch_tool_setup https://git.io/vPzYA
-  exeOnInstall chown $userName:$userName /mnt/home/$userName/arch_tool_setup
-  exeOnInstall chmod u+x /mnt/home/$userName/arch_tool_setup
+  exeOnInstall chown $userName:$userName /home/$userName/arch_tool_setup
+  exeOnInstall chmod u+x /home/$userName/arch_tool_setup
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
