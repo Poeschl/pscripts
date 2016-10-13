@@ -225,6 +225,17 @@ configXEnvironment() {
   printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
   sudo systemctl enable NetworkManager.service
 
+  if [ -n "$http_proxy" ]; then
+    printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
+    gsettings set org.gnome.system.proxy mode 'manual'
+    echo $http_proxy | while IFS=: read protocol ip port; do
+        gsettings set org.gnome.system.proxy.http host "${protocol}:${ip}"
+        gsettings set org.gnome.system.proxy.http port "$port"
+        gsettings set org.gnome.system.proxy.https host "${protocol}:${ip}"
+        gsettings set org.gnome.system.proxy.https port "$port"
+    done
+  fi
+
   printf "${BLUE}Config visual appearence...${NORMAL}\n"
   gsettings set org.nemo.desktop desktop-layout "true::true"
   gsettings set org.nemo.desktop trash-icon-visible "true"
