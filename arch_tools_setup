@@ -184,6 +184,7 @@ installVirtualBoxext(){
   then
     silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
     sudo systemctl enable vboxservice.service
+    sudo gpasswd -a $userName vboxsf
   else
     printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
   fi
