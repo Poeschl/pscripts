@@ -329,9 +329,9 @@ installBasicServiceDrivers
 
 installLightdm
 installDesktop
+installPackage gnome-terminal system-config-printer gnome-keyring
 configXEnvironment
 installMaterialtheme
-installPackage gnome-terminal system-config-printer gnome-keyring
 
 installVirtualBoxext
 
