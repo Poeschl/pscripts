@@ -204,6 +204,12 @@ configPacman() {
   sed -i "/^#\sMisc\soptions/aILoveCandy" /mnt/etc/pacman.conf
 }
 
+downloadToolScript() {
+  wget -O /mnt/home/$userName/arch_tool_setup https://git.io/vPzYA
+  exeOnInstall chown $userName:$userName /mnt/home/$userName/arch_tool_setup
+  exeOnInstall chmod u+x /mnt/home/$userName/arch_tool_setup
+}
+
 # Use colors, but only if connected to a terminal, and that terminal
 # supports them.
 if which tput >/dev/null 2>&1; then
@@ -273,6 +279,7 @@ installBasics
 enableMultilib
 setupUsers
 configPacman
+downloadToolScript
 
 umount /mnt/boot
 umount /mnt/home

@@ -237,7 +237,7 @@ configXEnvironment() {
 }
 
 cleanup() {
-  printf "${BLUE}Remove unused packages...${NORMAL}\n"
+  printf "${BLUE}Remove unused packages and files...${NORMAL}\n"
   sudo pacman -Rs $(pacman -Qtdq)
 
   printf "${BLUE}Remove not needed menu entries...${NORMAL}\n"
