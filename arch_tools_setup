@@ -223,7 +223,7 @@ configXEnvironment() {
   gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
 
   printf "${BLUE}Setup background...${NORMAL}\n"
-  sudo mkdir /usr/share/backgrounds/Arch
+  sudo mkdir -p /usr/share/backgrounds/Arch
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark" "http://orig05.deviantart.net/e2d8/f/2010/255/2/5/arch_linux_bw_wallpaper_by_thales_img-d2yl9ul.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark-colored" "http://orig05.deviantart.net/60cc/f/2016/234/f/2/arch_linux_wallpaper_dark_by_kjeksomanen-d4a70zy.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
