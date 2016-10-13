@@ -286,7 +286,7 @@ printf "Current user: ${YELLOW}$userName${NORMAL}\n"
 cd ~
 
 echo #
-read -p "Is the system running in a virtualbox environment? [yn] " -r
+read -p "Is the system running in a virtualbox environment? [yn] " -n 1
 echo    # move to a new line
 if [ $REPLY =~ ^[Yy]$ ];
 then
