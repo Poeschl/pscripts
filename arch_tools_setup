@@ -174,10 +174,7 @@ installMaterialtheme(){
 }
 
 installVirtualBoxext(){
-  echo #
-  read -p "Is the system running in a virtualbox environment? [yn] " -r
-  echo    # move to a new line
-  if [[ $REPLY =~ ^[Yy]$ ]]
+  if [ inVM=1 ];
   then
     silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
     sudo systemctl enable vboxservice.service
@@ -279,7 +276,7 @@ echo "* Development Environment"
 
 read -p "Are you sure you want that? [yn] " -r
 echo    # move to a new line
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+if [ ! $REPLY =~ ^[Yy]$ ];
 then
   exit 1
 fi
@@ -288,8 +285,19 @@ userName=$(whoami)
 printf "Current user: ${YELLOW}$userName${NORMAL}\n"
 cd ~
 
+echo #
+read -p "Is the system running in a virtualbox environment? [yn] " -r
+echo    # move to a new line
+if [ $REPLY =~ ^[Yy]$ ];
+then
+  inVM=1
+else
+  inVM=0
+fi
+
+
 ping -q -c2 archlinux.org > /dev/null
-if [ $? -eq 0 ]
+if [ $? -eq 0 ];
 then
 	printf "${GREEN}Internet available${NORMAL}\n"
 else
