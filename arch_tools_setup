@@ -55,12 +55,12 @@ installZsh() {
     sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
     sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" ~/.zshrc
     mkdir bin
-    echo "export PATH=$HOME/bin:\$PATH%" | sudo tee ~/.zshenv
+    echo "export PATH=$HOME/bin:\$PATH%" | tee ~/.zshenv
 
     if [ -n "$http_proxy" ]; then
       printf "${BLUE}Add proxy to default zsh profile...${NORMAL}\n"
-      echo "export http_proxy=$http_proxy" | sudo tee -a /etc/zsh/zshenv
-      echo "export https_proxy=$https_proxy" | sudo tee -a /etc/zsh/zshenv
+      echo "export http_proxy=$http_proxy" | tee -a /etc/zsh/zshenv
+      echo "export https_proxy=$https_proxy" | tee -a /etc/zsh/zshenv
     fi
 
     #set zsh also for root
@@ -197,7 +197,7 @@ installAndroidSdk() {
   sudo chown -R :androidsdk /opt/android-sdk/
   sudo chmod -R g+w /opt/android-sdk/
   export ANDROID_HOME=/opt/android-sdk
-  echo "export ANDROID_HOME=$ANDROID_HOME" | sudo tee -a ~/.zshenv
+  echo "export ANDROID_HOME=$ANDROID_HOME" | tee -a ~/.zshenv
 
   if [ -n "$http_proxy" ]; then
     #split address
@@ -261,6 +261,11 @@ cleanup() {
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/avahi-discover.desktop
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bssh.desktop
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bvnc.desktop
+}
+
+installPScripts(){
+  printf "${BLUE}Install pscripts...${NORMAL}\n"
+  sh -c "$(wget https://raw.githubusercontent.com/Poeschl/pscripts/master/tools/install.sh -O -)"
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -361,6 +366,7 @@ installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
 installAurPackage android-studio
+installPScripts
 installPackage audacious
 installPackage vlc qt4
 
