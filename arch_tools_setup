@@ -326,7 +326,7 @@ installLightdm
 installDesktop
 configXEnvironment
 installMaterialtheme
-installPackage gnome-terminal
+installPackage gnome-terminal system-config-printer gnome-keyring
 
 installVirtualBoxext
 
