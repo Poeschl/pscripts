@@ -359,6 +359,7 @@ installVirtualBoxext
 
 installPackage gedit
 installPackage eog
+installPackage gnome-calculator
 installAurPackage google-chrome
 installPackage atom
 installPackage jdk8-openjdk
