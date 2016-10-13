@@ -125,10 +125,11 @@ configureNTP() {
 
 installBasicServiceDrivers() {
   printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
-  silentpacman -S acpid cups mesa-libgl
+  silentpacman -S acpid cups mesa-libgl avahi
 
   echo "Enable services"
   sudo systemctl enable acpid.service
+  sudo systemctl enable avahi-daemon.service
   sudo systemctl enable org.cups.cupsd.service
 }
 
@@ -156,6 +157,8 @@ installMaterialtheme(){
     gsettings set org.cinnamon.theme name "Adapta-Nokto"
     gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
 
+    printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
+
     gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
     gsettings set org.nemo.desktop font "Roboto 10"
     gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
@@ -165,13 +168,14 @@ installMaterialtheme(){
     sudo sed -i "/^#theme-name/s/$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#icon-theme-name/s/$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#font-name/s/$/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#background/s/$/#888a85/" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "|&^#background|s|$|/usr/share/backgrounds/Arch/arch-linux-dark-colored.png|" /etc/lightdm/lightdm-gtk-greeter.conf
 
     sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#icon-theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+    sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
   fi
 }
 
@@ -243,6 +247,9 @@ cleanup() {
   printf "${BLUE}Remove not needed menu entries...${NORMAL}\n"
   sudo rm /usr/share/applications/qv*.desktop
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/electron.desktop
+  sudo sed -i "\$aNoDisplay=true" /usr/share/applications/avahi-discover.desktop
+  sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bssh.desktop
+  sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bvnc.desktop
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -335,6 +342,7 @@ installMaterialtheme
 installVirtualBoxext
 
 installPackage gedit
+installPackage eog
 installAurPackage google-chrome
 installPackage atom
 installPackage jdk8-openjdk
@@ -342,8 +350,8 @@ installPackage intellij-idea-community-edition
 installAndroidSdk
 installAdb
 installAurPackage android-studio
-installPackage audacity
-installPackage vlc
+installPackage audacious
+installPackage vlc qt4
 
 cleanup
 
