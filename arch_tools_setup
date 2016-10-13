@@ -238,11 +238,11 @@ configXEnvironment() {
 
 cleanup() {
   printf "${BLUE}Remove unused packages and files...${NORMAL}\n"
-  sudo pacman -Rs $(pacman -Qtdq)
+  silentpacman -Rs $(pacman -Qtdq)
 
   printf "${BLUE}Remove not needed menu entries...${NORMAL}\n"
   sudo rm /usr/share/applications/qv*.desktop
-  sudo sed -e "\$aNoDisplay=true" /usr/share/applications/electron.desktop
+  sudo sed -i "\$aNoDisplay=true" /usr/share/applications/electron.desktop
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
