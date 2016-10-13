@@ -197,9 +197,12 @@ installAndroidSdk() {
 
   if [ -n "$http_proxy" ]; then
     #split address
-    proxyAddress=$(echo $http_proxy | tr ":" "\n")
-    echo "http.proxyHost=${proxyAddress[0]}" | tee ~/.android/androidtool.cfg
-    echo "http.proxyPort=${proxyAddress[1]}" | tee -a ~/.android/androidtool.cfg
+    mkdir -p ~/.android/
+    touch ~/.android/androidtool.cfg
+    echo $http_proxy | while IFS=: read protocol ip port; do
+        echo "http.proxyHost=${protocol}:${ip}" | tee -a ~/.android/androidtool.cfg
+        echo "http.proxyPort=$port" | tee -a ~/.android/androidtool.cfg
+    done
   fi
 
   echo "y" | $ANDROID_HOME/tools/android update sdk --no-ui
