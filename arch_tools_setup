@@ -281,7 +281,7 @@ echo "* Development Environment"
 
 read -p "Are you sure you want that? [yn] " -r
 echo    # move to a new line
-if [ ! $REPLY =~ ^[Yy]$ ];
+if [[ ! $REPLY =~ ^[Yy]$ ]];
 then
   exit 1
 fi
@@ -293,7 +293,7 @@ cd ~
 echo #
 read -p "Is the system running in a virtualbox environment? [yn] " -n 1
 echo    # move to a new line
-if [ $REPLY =~ ^[Yy]$ ];
+if [[ $REPLY =~ ^[Yy]$ ]];
 then
   inVM=1
 else
