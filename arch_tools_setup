@@ -168,7 +168,7 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin xfce4-xfapplet-plugin
 
   saveProgress
 }
@@ -211,6 +211,17 @@ installMaterialtheme(){
     fi
 
     if [ ! -z "$(pacman -Qs xface4)" ]; then
+
+      xfconf-query --channel xsettings --property /Net/IconThemeName --set "Paper"
+      xfconf-query --channel xsettings --property /Net/ThemeName --set "Adapta-Nokto"
+      xfconf-query --channel xfwm4 --property /general/theme --set "Adapta-Nokto"
+
+      xfconf-query --channel xfwm4 --property /general/button_layout --set "|HMC"
+
+      xfconf-query --channel xsettings --property /Gtk/FontName --set "Roboto 10"
+      xfconf-query --channel xfwm4 --property /general/title_font --set "Roboto Bold 11"
+
+      #Todo add panel config from xfconf
     fi
   fi
 
@@ -292,10 +303,40 @@ configXEnvironment() {
 
     printf "${BLUE}Set background...${NORMAL}\n"
     gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
+
+    printf "<?xml version=\"1.0\"?>\<!DOCTYPE wallpapers SYSTEM \"cinnamon-wp-list.dtd\">\n
+    <wallpapers>\n
+      <wallpaper deleted="false">\n
+        <name>Arch Linux Dark</name>\n
+        <filename>/usr/share/backgrounds/Arch/arch-linux-dark.png</filename>\n
+        <options>zoom</options>\n
+        <shade_type>solid</shade_type>\n
+        <pcolor>#000000</pcolor>\n
+        <scolor>#000000</scolor>\n
+      </wallpaper>\n
+      <wallpaper deleted="false">\n
+        <name>Arch Linux Dark Colored</name>\n
+        <filename>/usr/share/backgrounds/Arch/arch-linux-dark-colored.png</filename>\n
+        <options>zoom</options>\n
+        <shade_type>solid</shade_type>\n
+        <pcolor>#000000</pcolor>\n
+        <scolor>#000000</scolor>\n
+      </wallpaper>\n
+      <wallpaper deleted="false">\n
+        <name>Arch Linux Wall</name>\n
+        <filename>/usr/share/backgrounds/Arch/arch-linux-wall.png</filename>\n
+        <options>zoom</options>\n
+        <shade_type>solid</shade_type>\n
+        <pcolor>#000000</pcolor>\n
+        <scolor>#000000</scolor>\n
+      </wallpaper>\n
+    </wallpapers>\n" | sudo tee /usr/share/cinnamon-background-properties/linuxarch.xml
+
   fi
 
   if [ ! -z "$(pacman -Qs xface4)" ]; then
-
+    printf "${BLUE}Set background...${NORMAL}\n"
+    xfconf-query --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-dark.png"
   fi
 
   saveProgress
