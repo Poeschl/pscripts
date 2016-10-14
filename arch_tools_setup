@@ -367,6 +367,9 @@ userName=$(whoami)
 printf "Current user: ${YELLOW}$userName${NORMAL}\n"
 cd ~
 
+printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
+sudo echo "" > /dev/null
+
 echo #
 read -p "Is the system running in a virtualbox environment? [yn] " -n 1
 echo    # move to a new line
@@ -377,6 +380,14 @@ else
   inVM=0
 fi
 
+
+[ -z "$(sudo dmidecode | grep -i Virtualbox)" ];
+then
+  inVM=0
+else
+  inVM=1
+fi
+
 ping -q -c2 archlinux.org > /dev/null
 if [ $? -eq 0 ];
 then
@@ -385,9 +396,6 @@ else
   printf "${RED}No internet available, please check the connectivity and try again!${NORMAL}\n"
   exit 1
 fi
-
-printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
-sudo echo "" > /dev/null
 
 # Temp raise of the /tmp/ folder size to 2GiB
 sudo mount -o remount,size=2G,noatime /tmp

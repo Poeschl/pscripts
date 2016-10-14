@@ -155,7 +155,7 @@ installGrub() {
 
 installBasics() {
   printf "${BLUE}Install basic programs and DHCP...${NORMAL}\n"
-  exeOnInstall pacman --noconfirm -S wget curl git
+  exeOnInstall pacman --noconfirm -S wget curl git dmidecode
 
   networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
   printf "Enable DHCP for ${YELLOW}$networkInterface${NORMAL}\n"
