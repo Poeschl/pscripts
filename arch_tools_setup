@@ -54,13 +54,13 @@ installZsh() {
     ./oh-my-zsh
     sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
     sed -i "/^plugins/s/(.*)/(git sudo adb gradle archlinux history)/" ~/.zshrc
-    mkdir bin
+    mkdir -p bin
     echo "export PATH=$HOME/bin:\$PATH%" | tee ~/.zshenv
 
     if [ -n "$http_proxy" ]; then
       printf "${BLUE}Add proxy to default zsh profile...${NORMAL}\n"
-      echo "export http_proxy=$http_proxy" | tee -a /etc/zsh/zshenv
-      echo "export https_proxy=$https_proxy" | tee -a /etc/zsh/zshenv
+      echo "export http_proxy=$http_proxy" | sudo tee -a /etc/zsh/zshenv
+      echo "export https_proxy=$https_proxy" | sudo tee -a /etc/zsh/zshenv
     fi
 
     #set zsh also for root
@@ -342,11 +342,11 @@ sudo mount -o remount,size=2G,noatime /tmp
 printf "${BLUE}Sync packages database...${NORMAL}\n"
 silentpacman -Syy
 
-installPacaur
 installZsh
-installReflektor
 installNano
 installPackage htop
+installPacaur
+installReflektor
 configureNTP
 installBasicServiceDrivers
 
