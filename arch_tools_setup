@@ -194,7 +194,7 @@ installMaterialtheme(){
     sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
 
-    if [ -z "$(pacman -Qs cinnamon)" ]; then
+    if [ ! -z "$(pacman -Qs cinnamon)" ]; then
       gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
       gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
       gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
@@ -210,7 +210,7 @@ installMaterialtheme(){
       gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
     fi
 
-    if [ -z "$(pacman -Qs xface4)" ]; then
+    if [ ! -z "$(pacman -Qs xface4)" ]; then
     fi
   fi
 
@@ -269,7 +269,7 @@ configXEnvironment() {
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall.png" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
 
 
-  if [ -z "$(pacman -Qs cinnamon)" ]; then
+  if [ ! -z "$(pacman -Qs cinnamon)" ]; then
     printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
     sudo systemctl enable NetworkManager.service
 
@@ -294,7 +294,7 @@ configXEnvironment() {
     gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
   fi
 
-  if [ -z "$(pacman -Qs xface4)" ]; then
+  if [ ! -z "$(pacman -Qs xface4)" ]; then
 
   fi
 
@@ -303,7 +303,9 @@ configXEnvironment() {
 
 cleanup() {
   printf "${BLUE}Remove unused packages and files...${NORMAL}\n"
-  silentpacman -Rs $(pacman -Qtdq)
+  if [ ! -z "$(pacman -Qtdq)" ]; then
+    silentpacman -Rs $(pacman -Qtdq)
+  fi
 
   printf "${BLUE}Remove not needed menu entries...${NORMAL}\n"
   sudo rm /usr/share/applications/qv*.desktop
@@ -369,17 +371,6 @@ cd ~
 
 printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
 sudo echo "" > /dev/null
-
-echo #
-read -p "Is the system running in a virtualbox environment? [yn] " -n 1
-echo    # move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]];
-then
-  inVM=1
-else
-  inVM=0
-fi
-
 
 [ -z "$(sudo dmidecode | grep -i Virtualbox)" ];
 then
