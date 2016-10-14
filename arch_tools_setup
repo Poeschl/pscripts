@@ -18,6 +18,12 @@ installAurPackage() {
   silentpacaur --needed -y $@
 }
 
+saveProgress() {
+  if [ -f $(basename "$0") ]; then
+    sed -i "/^${FUNCNAME[ 1 ]}\$/s/^#*/#/" $(basename "$0")
+  fi
+}
+
 installPacaur() {
   printf "${BLUE}Install pacaur...${NORMAL}\n"
 
@@ -40,6 +46,8 @@ installPacaur() {
     cd ..
     rm -rf pacaur_install
   fi
+
+  saveProgress
 }
 
 
@@ -77,6 +85,8 @@ installZsh() {
   else
     printf "${YELLOW}oh-my-zsh already there, using exiting one.${NORMAL}\n"
   fi
+
+  saveProgress
 }
 
 installReflektor() {
@@ -91,12 +101,16 @@ installReflektor() {
 
   echo "Enable reflector service"
   sudo systemctl enable reflector.timer
+
+  saveProgress
 }
 
 installNano(){
   printf "${BLUE}Install nano...${NORMAL}\n"
   silentpacman -S nano
   echo "export EDITOR=usr/bin/nano" | sudo tee -a /etc/zsh/zshenv
+
+  saveProgress
 }
 
 configureNTP() {
@@ -121,6 +135,8 @@ configureNTP() {
 
   time=$(date)
   printf "Current time: ${YELLOW}$time${NORMAL}\n"
+
+  saveProgress
 }
 
 installBasicServiceDrivers() {
@@ -131,39 +147,40 @@ installBasicServiceDrivers() {
   sudo systemctl enable acpid.service
   sudo systemctl enable avahi-daemon.service
   sudo systemctl enable org.cups.cupsd.service
+
+  saveProgress
 }
 
 installLightdm() {
   printf "${BLUE}Install lightdm and gtk-greeter...${NORMAL}\n"
   silentpacman -S lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings
   sudo systemctl enable lightdm.service
+
+  saveProgress
 }
 
-installDesktop() {
+installCinnamon() {
   printf "${BLUE}Install Cinnamon...${NORMAL}\n"
   silentpacman -S cinnamon
+
+  saveProgress
+}
+
+installXfce() {
+  printf "${BLUE}Install xfce...${NORMAL}\n"
+  silentpacman -S xfce4
+
+  saveProgress
 }
 
 installMaterialtheme(){
-  printf "${BLUE}Install Material Look...${NORMAL}\n"
   if [ -z "$(pacman -Qs adapta-gtk-theme)" ]; then
+    printf "${BLUE}Install Material Look...${NORMAL}\n"
     silentpacaur -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
 
     printf "${BLUE}Setup Material Look...${NORMAL}\n"
-    gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
-    gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
-    gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
-    gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
-    gsettings set org.cinnamon.theme name "Adapta-Nokto"
-    gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
 
-    printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
-
-    gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
-    gsettings set org.nemo.desktop font "Roboto 10"
-    gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
-    gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
-
+    printf "${BLUE}Setup Material Look for lightdm greeter...${NORMAL}\n"
     sudo sed -i "/^#user-background/s/$/true/" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#theme-name/s/$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#icon-theme-name/s/$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
@@ -176,18 +193,36 @@ installMaterialtheme(){
     sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
     sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
+
+    if [ -z "$(pacman -Qs cinnamon)" ]; then
+      gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
+      gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
+      gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
+      gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
+      gsettings set org.cinnamon.theme name "Adapta-Nokto"
+      gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
+
+      printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
+
+      gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
+      gsettings set org.nemo.desktop font "Roboto 10"
+      gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
+      gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
+    fi
+
+    if [ -z "$(pacman -Qs xface4)" ]; then
+    fi
   fi
+
+  saveProgress
 }
 
 installVirtualBoxext(){
-  if [ inVM=1 ];
-  then
-    silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
-    sudo systemctl enable vboxservice.service
-    sudo gpasswd -a $userName vboxsf
-  else
-    printf "${YELLOW}Skipping virtualbox additions${NORMAL}\n"
-  fi
+  silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
+  sudo systemctl enable vboxservice.service
+  sudo gpasswd -a $userName vboxsf
+
+  saveProgress
 }
 
 installAndroidSdk() {
@@ -211,45 +246,59 @@ installAndroidSdk() {
   fi
 
   echo "y" | $ANDROID_HOME/tools/android update sdk --no-ui
+
+  saveProgress
 }
 
 installAdb() {
   printf "${BLUE}Install ADB...${NORMAL}\n"
   silentpacman -S android-tools
   #sudo gpasswd -a $userName adbusers
+
+  saveProgress
 }
 
 configXEnvironment() {
   printf "${BLUE}Set german keyboard layout for X...${NORMAL}\n"
   sudo localectl set-x11-keymap de pc105 nodeadkeys
 
-  printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
-  sudo systemctl enable NetworkManager.service
-
-  if [ -n "$http_proxy" ]; then
-    printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
-    gsettings set org.gnome.system.proxy mode 'manual'
-    echo $http_proxy | while IFS=: read protocol ip port; do
-        gsettings set org.gnome.system.proxy.http host "${protocol}:${ip}"
-        gsettings set org.gnome.system.proxy.http port "$port"
-        gsettings set org.gnome.system.proxy.https host "${protocol}:${ip}"
-        gsettings set org.gnome.system.proxy.https port "$port"
-    done
-  fi
-
-  printf "${BLUE}Config visual appearence...${NORMAL}\n"
-  gsettings set org.nemo.desktop desktop-layout "true::true"
-  gsettings set org.nemo.desktop trash-icon-visible "true"
-  gsettings set org.nemo.desktop volumes-visible "true"
-  gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
-
-  printf "${BLUE}Setup background...${NORMAL}\n"
-  sudo mkdir -p /usr/share/backgrounds/Arch
+  printf "${BLUE}Download background...${NORMAL}\n"
+  sudo mkdir -p /usr/share/backgrounds/Asrch
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark.png" "http://orig05.deviantart.net/e2d8/f/2010/255/2/5/arch_linux_bw_wallpaper_by_thales_img-d2yl9ul.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark-colored.png" "http://orig05.deviantart.net/60cc/f/2016/234/f/2/arch_linux_wallpaper_dark_by_kjeksomanen-d4a70zy.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall.png" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
 
-  gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
+
+  if [ -z "$(pacman -Qs cinnamon)" ]; then
+    printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
+    sudo systemctl enable NetworkManager.service
+
+    if [ -n "$http_proxy" ]; then
+      printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
+      gsettings set org.gnome.system.proxy mode 'manual'
+      echo $http_proxy | while IFS=: read protocol ip port; do
+        gsettings set org.gnome.system.proxy.http host "${protocol}:${ip}"
+        gsettings set org.gnome.system.proxy.http port "$port"
+        gsettings set org.gnome.system.proxy.https host "${protocol}:${ip}"
+        gsettings set org.gnome.system.proxy.https port "$port"
+      done
+    fi
+
+    printf "${BLUE}Config visual appearence...${NORMAL}\n"
+    gsettings set org.nemo.desktop desktop-layout "true::true"
+    gsettings set org.nemo.desktop trash-icon-visible "true"
+    gsettings set org.nemo.desktop volumes-visible "true"
+    gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
+
+    printf "${BLUE}Set background...${NORMAL}\n"
+    gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
+  fi
+
+  if [ -z "$(pacman -Qs xface4)" ]; then
+
+  fi
+
+  saveProgress
 }
 
 cleanup() {
@@ -262,11 +311,15 @@ cleanup() {
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/avahi-discover.desktop
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bssh.desktop
   sudo sed -i "\$aNoDisplay=true" /usr/share/applications/bvnc.desktop
+
+  saveProgress
 }
 
 installPScripts(){
   printf "${BLUE}Install pscripts...${NORMAL}\n"
   sh -c "$(wget https://raw.githubusercontent.com/Poeschl/pscripts/master/tools/install.sh -O -)"
+
+  saveProgress
 }
 
 # Use colors, but only if connected to a terminal, and that terminal
@@ -351,12 +404,19 @@ configureNTP
 installBasicServiceDrivers
 
 installLightdm
-installDesktop
+
+if [ inVM=1 ];
+then
+  installXfce
+  installVirtualBoxext
+else
+  installCinnamon
+fi
+
 installPackage gnome-terminal system-config-printer gnome-keyring
 configXEnvironment
 installMaterialtheme
 
-installVirtualBoxext
 
 installPackage gedit
 installPackage eog
