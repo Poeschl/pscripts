@@ -245,10 +245,14 @@ installMaterialtheme(){
 }
 
 installCompiz() {
+  printf "${BLUE}Install Compiz...${NORMAL}\n"
   silentpacaur -S compiz
+
+  echo "compiz --replace &" | sudo tee -a /etc/xprofile
 }
 
 installVirtualBoxext(){
+  printf "${BLUE}Install Virtualbox Additions...${NORMAL}\n"
   silentpacman -S virtualbox-guest-modules-arch virtualbox-guest-utils
   sudo systemctl enable vboxservice.service
   sudo gpasswd -a $userName vboxsf
@@ -467,8 +471,9 @@ installLightdm
 
 if [ inVM=1 ];
 then
-  printf "${BLUE}Virtual Environment detected.${NORMAL}\n"
+  printf "${BLUE}Virtual Environment detected${NORMAL}\n"
   installXfce
+  installCompiz
   installVirtualBoxext
 else
   printf "${BLUE}Bare hardware Environment${NORMAL}\n"
@@ -478,7 +483,6 @@ fi
 installPackage system-config-printer gnome-keyring
 configXEnvironment
 installMaterialtheme
-
 
 installPackage gedit
 installPackage eog
