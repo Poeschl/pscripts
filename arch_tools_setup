@@ -219,18 +219,18 @@ installMaterialtheme(){
 
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
 
-      xfconf-query --create --channel xsettings --property /Net/IconThemeName --set "Paper"
-      xfconf-query --create --channel xsettings --property /Net/ThemeName --set "Adapta-Nokto"
-      xfconf-query --create --channel xfwm4 --property /general/theme --set "Adapta-Nokto"
-      xfconf-query --create --channel xsettings --property /Gtk/CursorThemeName --set "Paper"
+      xfconf-query --create -t "string" --channel xsettings --property /Net/IconThemeName --set "Paper"
+      xfconf-query --create -t "string" --channel xsettings --property /Net/ThemeName --set "Adapta-Nokto"
+      xfconf-query --create -t "string" --channel xfwm4 --property /general/theme --set "Adapta-Nokto"
+      xfconf-query --create -t "string" --channel xsettings --property /Gtk/CursorThemeName --set "Paper"
 
-      xfconf-query --create --channel xfwm4 --property /general/button_layout --set "|HMC"
-      xfconf-query --create --channel xsettings --property /Gtk/ButtonImages --set "false"
-      xfconf-query --create --channel xfwm4 --property /general/inactive_opacity --set "90"
-      xfconf-query --create --channel xfwm4 --property /general/popup_opacity --set "90"
+      xfconf-query --create -t "string" --channel xfwm4 --property /general/button_layout --set "|HMC"
+      xfconf-query --create -t "string" --channel xsettings --property /Gtk/ButtonImages --set "false"
+      xfconf-query --create -t "int" --channel xfwm4 --property /general/inactive_opacity --set "90"
+      xfconf-query --create -t "int" --channel xfwm4 --property /general/popup_opacity --set "90"
 
-      xfconf-query --create --channel xsettings --property /Gtk/FontName --set "Roboto 10"
-      xfconf-query --create --channel xfwm4 --property /general/title_font --set "Roboto Bold 11"
+      xfconf-query --create -t "string" --channel xsettings --property /Gtk/FontName --set "Roboto 10"
+      xfconf-query --create -t "string" --channel xfwm4 --property /general/title_font --set "Roboto Bold 11"
 
       if [ ! -z "$(pacman -Qs compiz)" ]; then
         gsettings set org.gnome.desktop.wm.preferences theme "Adapta-Nokto"
@@ -362,7 +362,7 @@ configXEnvironment() {
 
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set background...${NORMAL}\n"
-    xfconf-query --create --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-dark.png"
+    xfconf-query --create -t "string" --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-dark.png"
   fi
 
   saveProgress
