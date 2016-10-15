@@ -11,16 +11,20 @@ silentpacaur() {
 installPackage() {
   printf "${BLUE}Install $@...${NORMAL}\n"
   silentpacman --needed -S $@
+
+  saveProgress $@
 }
 
 installAurPackage() {
   printf "${BLUE}Install $@...${NORMAL}\n"
   silentpacaur --needed -y $@
+
+  saveProgress $@
 }
 
 saveProgress() {
   if [ -f $(basename "$0") ]; then
-    sed -i "/^${FUNCNAME[ 1 ]}\$/s/^#*/#/" $(basename "$0")
+    sed -i "/^\s*${FUNCNAME[ 1 ]}$@\$/s/^#*/#/" $(basename "$0")
   fi
 }
 
@@ -141,7 +145,7 @@ configureNTP() {
 
 installBasicServiceDrivers() {
   printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
-  silentpacman -S acpid cups mesa-libgl avahi
+  silentpacman -S acpid cups mesa-libgl avahi pulseaudio
 
   echo "Enable services"
   sudo systemctl enable acpid.service
@@ -161,14 +165,14 @@ installLightdm() {
 
 installCinnamon() {
   printf "${BLUE}Install Cinnamon...${NORMAL}\n"
-  silentpacman -S cinnamon
+  silentpacman -S cinnamon gnome-terminal
 
   saveProgress
 }
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin xfce4-xfapplet-plugin
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin
 
   saveProgress
 }
@@ -177,55 +181,71 @@ installMaterialtheme(){
   if [ -z "$(pacman -Qs adapta-gtk-theme)" ]; then
     printf "${BLUE}Install Material Look...${NORMAL}\n"
     silentpacaur -S paper-icon-theme-git adapta-gtk-theme ttf-roboto
+  fi
 
-    printf "${BLUE}Setup Material Look...${NORMAL}\n"
+  printf "${BLUE}Setup Material Look...${NORMAL}\n"
 
-    printf "${BLUE}Setup Material Look for lightdm greeter...${NORMAL}\n"
-    sudo sed -i "/^#user-background/s/$/true/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#theme-name/s/$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#icon-theme-name/s/$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#font-name/s/$/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "|&^#background|s|$|/usr/share/backgrounds/Arch/arch-linux-dark-colored.png|" /etc/lightdm/lightdm-gtk-greeter.conf
+  printf "${BLUE}Setup Material Look for lightdm greeter...${NORMAL}\n"
+  sudo sed -i "/^#user-background/s/$(true)*/true/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#theme-name/s/$(Adapta-Nokto)*/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#icon-theme-name/s/$(Paper)*/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#font-name/s/$(Roboto\s10)*/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#background/s/$/\/usr\/share\/backgrounds\/Arch\/arch-linux-dark-colored.png/" /etc/lightdm/lightdm-gtk-greeter.conf
 
-    sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#icon-theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-    sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#icon-theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
 
-    if [ ! -z "$(pacman -Qs cinnamon)" ]; then
-      gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
-      gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
-      gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
-      gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
-      gsettings set org.cinnamon.theme name "Adapta-Nokto"
-      gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
+  if [ ! -z "$(pacman -Qs cinnamon)" ]; then
+    gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
+    gsettings set org.cinnamon.desktop.interface cursor-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Nokto"
+    gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
+    gsettings set org.cinnamon.theme name "Adapta-Nokto"
+    gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
+    printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
 
-      printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
+    gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
+    gsettings set org.nemo.desktop font "Roboto 10"
+    gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
+    gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
 
-      gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
-      gsettings set org.nemo.desktop font "Roboto 10"
-      gsettings set org.gnome.desktop.interface document-font-name "Roboto 11"
-      gsettings set org.cinnamon.desktop.wm.preferences titlebar-font "Roboto Bold 11"
-    fi
+    gsettings set org.cinnamon.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
 
-    if [ ! -z "$(pacman -Qs xface4)" ]; then
+  fi
+
+  if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
 
       xfconf-query --channel xsettings --property /Net/IconThemeName --set "Paper"
       xfconf-query --channel xsettings --property /Net/ThemeName --set "Adapta-Nokto"
       xfconf-query --channel xfwm4 --property /general/theme --set "Adapta-Nokto"
+      xfconf-query --channel xsettings --property /Gtk/CursorThemeName --set "Paper"
 
       xfconf-query --channel xfwm4 --property /general/button_layout --set "|HMC"
+      xfconf-query --channel xsettings --property /Gtk/ButtonImages --set "false"
+      xfconf-query --channel xfwm4 --property /general/inactive_opacity --set "90"
+      xfconf-query --channel xfwm4 --property /general/popup_opacity --set "90"
 
       xfconf-query --channel xsettings --property /Gtk/FontName --set "Roboto 10"
       xfconf-query --channel xfwm4 --property /general/title_font --set "Roboto Bold 11"
 
-      #Todo add panel config from xfconf
-    fi
+      if [ ! -z "$(pacman -Qs compiz)" ]; then
+        gsettings set org.gnome.desktop.wm.preferences theme "Adapta-Nokto"
+        gsettings set org.gnome.desktop.wm.preferences titlebar-font "Roboto Bold 11"
+        gsettings set org.gnome.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
+      fi
+
+    #Todo add panel config from xfconf
   fi
 
   saveProgress
+}
+
+installCompiz() {
+  silentpacaur -S compiz
 }
 
 installVirtualBoxext(){
@@ -274,7 +294,7 @@ configXEnvironment() {
   sudo localectl set-x11-keymap de pc105 nodeadkeys
 
   printf "${BLUE}Download background...${NORMAL}\n"
-  sudo mkdir -p /usr/share/backgrounds/Asrch
+  sudo mkdir -p /usr/share/backgrounds/Arch
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark.png" "http://orig05.deviantart.net/e2d8/f/2010/255/2/5/arch_linux_bw_wallpaper_by_thales_img-d2yl9ul.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark-colored.png" "http://orig05.deviantart.net/60cc/f/2016/234/f/2/arch_linux_wallpaper_dark_by_kjeksomanen-d4a70zy.png"
   sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall.png" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
@@ -334,7 +354,7 @@ configXEnvironment() {
 
   fi
 
-  if [ ! -z "$(pacman -Qs xface4)" ]; then
+  if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set background...${NORMAL}\n"
     xfconf-query --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-dark.png"
   fi
@@ -413,7 +433,7 @@ cd ~
 printf "${RED}It is needed to get root rights for most of the following tasks!${NORMAL}\n"
 sudo echo "" > /dev/null
 
-[ -z "$(sudo dmidecode | grep -i Virtualbox)" ];
+if [ -z "$(sudo dmidecode | grep -i Virtualbox)" ];
 then
   inVM=0
 else
@@ -447,13 +467,15 @@ installLightdm
 
 if [ inVM=1 ];
 then
+  printf "${BLUE}Virtual Environment detected.${NORMAL}\n"
   installXfce
   installVirtualBoxext
 else
+  printf "${BLUE}Bare hardware Environment${NORMAL}\n"
   installCinnamon
 fi
 
-installPackage gnome-terminal system-config-printer gnome-keyring
+installPackage system-config-printer gnome-keyring
 configXEnvironment
 installMaterialtheme
 
