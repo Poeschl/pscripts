@@ -151,6 +151,8 @@ installGrub() {
 
   exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
   exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
+  mkdir -p /mnt/boot/EFI/BOOT
+  cp /mnt/boot/EFI/grub/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI 
 }
 
 installBasics() {

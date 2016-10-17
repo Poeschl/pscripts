@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+#
+#
+# Todos:
+#  + Add nemo as filemanager
+#  + add mugshot to edit the user profile (default icon as .face)
+#  + add menulibre for menu editing
+#  + setup wisker menu
+#  + setup panels
+#  + setup shortcuts
+#  + add note what to do manually
+#
 
 silentpacman() {
   sudo pacman --noconfirm $@
@@ -254,7 +265,8 @@ installCompiz() {
 
   echo "compiz --replace &" | sudo tee -a /etc/xprofile
 
-  #todo: set plugins and settings from file
+  printf "${YELLOW}Copy preset compiz profile to desktop...${NORMAL}\n"
+  wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/Compiz.profile"
 
   saveProgress
 }
@@ -368,7 +380,7 @@ configXEnvironment() {
 
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set background...${NORMAL}\n"
-    xfconf-query --create -t "string" --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-dark.png"
+    xfconf-query --create -t "string" --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-wall.png"
   fi
 
   saveProgress
