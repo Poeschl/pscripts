@@ -266,6 +266,7 @@ installCompiz() {
   echo "compiz --replace &" | sudo tee -a /etc/xprofile
 
   printf "${YELLOW}Copy preset compiz profile to desktop...${NORMAL}\n"
+  mkdir -p ~/Desktop
   wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/Compiz.profile"
 
   saveProgress
