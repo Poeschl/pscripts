@@ -340,16 +340,13 @@ installMaterialtheme(){
       printf "${BLUE}Remove unkown devices from desktop...${NORMAL}\n"
       xfconf-query --create -t bool --channel xfce4-desktop --property /desktop-icons/file-icons/show-unknown-removable --set false
 
-      printf "${BLUE}Setup shortcuts...${NORMAL}\n"
-      xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property "/commands/custom/<Primary><Alt>t" --set "exo-open --launch TerminalEmulator"
-      xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property "/commands/custom/<Alt>F1" --set "xfce4-popup-whiskermenu"
-
       printf "${BLUE}Setup user switching...${NORMAL}\n"
       printf "#!/bin/sh\n/usr/bin/dm-tool switch-to-greeter" | sudo tee /usr/bin/gdmflexiserver
       sudo chmod ugo+x /usr/bin/gdmflexiserver
 
       printf "${BLUE}Setup screenlocking and screensaver...${NORMAL}\n"
-      printf "#!/bin/bash\nlight-locker-command -l" | sudo tee /usr/local/bin/xflock4
+      printf "#!/bin/bash\nlight-locker-command -l" | sudo tee /usr/bin/xflock4
+      sudo chmod ugo+x /usr/bin/xflock4
 
       printf "${BLUE}Setup xfce panels...${NORMAL}\n"
       cd
@@ -446,15 +443,20 @@ setPresets(){
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set nemo as default...${NORMAL}\n"
     printf "#!/usr/bin/env bash\nexo-preferred-applications\nxfce4-session-logout" | tee "Desktop/set_default_apps"
+    sudo chmod u+x /usr/bin/xflock4
     if [ ! -z "$(pacman -Qs xdg-mime)" ]; then
       sudo xdg-mime default nemo.desktop inode/directory application
     fi
     [ -f "~/.local/share/applications/mimeapps.list" ] && sudo sed -i "s/thunar.desktop/nemo.desktop" ~/.local/share/applications/mimeapps.list
     gsettings set org.nemo.desktop show-desktop-icons false
+
+    printf "${BLUE}Create shortcuts file...${NORMAL}\n"
+    printf "#!/usr/bin/env bash\n \
+    xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property \"/commands/custom/<Primary>/<Alt>t\" --set \"exo-open --launch TerminalEmulator\"\n \
+    xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property \"/commands/custom/<Alt>F1\" --set \"xfce4-popup-whiskermenu\"\n" | tee Desktop/set_shortcuts
+    chmod u+x Desktop/set_shortcuts
   fi
 
-  # printf "${BLUE}Set default avator for user picture...${NORMAL}\n"
-  # cp /usr/share/icons/Paper/48x48/status/avatar-default.png ~/.xface
 
   saveProgress
 }
