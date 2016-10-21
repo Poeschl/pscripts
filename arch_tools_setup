@@ -183,7 +183,7 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo cinnamon-screensaver
   silentpacaur -S menulibre
 
   printf "${BLUE}Install mugshot...${NORMAL}\n"
@@ -347,6 +347,10 @@ installMaterialtheme(){
       printf "${BLUE}Setup user switching...${NORMAL}\n"
       printf "#!/bin/sh\n/usr/bin/dm-tool switch-to-greeter" | sudo tee /usr/bin/gdmflexiserver
       sudo chmod ugo+x /usr/bin/gdmflexiserver
+
+      printf "${BLUE}Setup screenlocking and screensaver...${NORMAL}\n"
+      printf "#!/bin/bash\nlight-locker-command -l" | sudo tee /usr/local/bin/xflock4
+
     fi
 
     saveProgress
