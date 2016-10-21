@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+saveProgress() {
+  if [ -f $(basename "$0") ]; then
+    if [ -z "$1" ]; then
+      sed -i "/^\s*${FUNCNAME[ 1 ]}\$/s/^#*/#/" $(basename "$0")
+    else
+      sed -i "/^\s*${FUNCNAME[ 1 ]}\s+$1.*\$/s/^#*/#/" $(basename "$0")
+    fi
+  fi
+}
+
 exeOnInstall() {
   arch-chroot /mnt "$@"
 }
@@ -85,6 +95,8 @@ EOF
   mount ${installDev}1 /mnt/boot # EFI
 
   swapon -L swap
+
+  saveProgress
 }
 
 installArch() {
@@ -108,6 +120,8 @@ installArch() {
   then
     hostname=$REPLY
   fi
+
+  saveProgress
 }
 
 setupSystem() {
@@ -137,12 +151,16 @@ setupSystem() {
   printf "${BLUE}Add 'wheel' to sudoers file...${NORMAL}\n"
   #make the group wheel ready to use with sudo
   sed -i "/%wheel\sALL=(ALL)\sALL/s/^#//" /mnt/etc/sudoers
+
+  saveProgress
 }
 
 installKernel() {
   printf "${BLUE}Install kernel...${NORMAL}\n"
   sed -i "/^HOOKS/s/block\sfilesystems/block lvm2 filesystems/" /mnt/etc/mkinitcpio.conf
   exeOnInstall mkinitcpio -p linux
+
+  saveProgress
 }
 
 installGrub() {
@@ -152,7 +170,9 @@ installGrub() {
   exeOnInstall grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
   exeOnInstall grub-mkconfig -o /boot/grub/grub.cfg
   mkdir -p /mnt/boot/EFI/BOOT
-  cp /mnt/boot/EFI/grub/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI 
+  cp /mnt/boot/EFI/grub/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI
+
+  saveProgress
 }
 
 installBasics() {
@@ -172,6 +192,8 @@ installBasics() {
     echo "export http_proxy=$http_proxy" | sudo tee -a /mnt/etc/profile
     echo "export https_proxy=$https_proxy" | sudo tee -a /mnt/etc/profile
   fi
+
+  saveProgress
 }
 
 enableMultilib() {
@@ -198,18 +220,24 @@ setupUsers() {
 
   printf "${BLUE}Disable root login...${NORMAL}\n"
   passwd -l root
+
+  saveProgress
 }
 
 configPacman() {
   printf "${BLUE}Config pacman colors...${NORMAL}\n"
   sed -i "/^#Color/s/^#//" /mnt/etc/pacman.conf
   sed -i "/^#\sMisc\soptions/aILoveCandy" /mnt/etc/pacman.conf
+
+  saveProgress
 }
 
 downloadToolScript() {
   wget -O /mnt/home/$userName/arch_tool_setup https://git.io/vPzYA
   exeOnInstall chown $userName:$userName /home/$userName/arch_tool_setup
   exeOnInstall chmod u+x /home/$userName/arch_tool_setup
+
+  saveProgress
 }
 
 # Use colors, but only if connected to a terminal, and that terminal

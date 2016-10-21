@@ -221,7 +221,6 @@ installMaterialtheme(){
     gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Nokto"
     gsettings set org.cinnamon.theme name "Adapta-Nokto"
     gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "true"
-    printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
 
     gsettings set org.cinnamon.desktop.interface font-name "Roboto 9"
     gsettings set org.nemo.desktop font "Roboto 10"
@@ -252,6 +251,9 @@ installMaterialtheme(){
         gsettings set org.gnome.desktop.wm.preferences titlebar-font "Roboto Bold 11"
         gsettings set org.gnome.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
       fi
+
+      #general settings
+      printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
 
     #Todo add panel config from xfconf
   fi
