@@ -343,6 +343,10 @@ installMaterialtheme(){
       printf "${BLUE}Setup shortcuts...${NORMAL}\n"
       xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property "/commands/custom/<Primary><Alt>t" --set "exo-open --launch TerminalEmulator"
       xfconf-query --create -t string --channel xfce4-keyboard-shortcuts --property "/commands/custom/<Alt>F1" --set "xfce4-popup-whiskermenu"
+
+      printf "${BLUE}Setup user switching...${NORMAL}\n"
+      printf "#!/bin/sh\n/usr/bin/dm-tool switch-to-greeter" | sudo tee /usr/bin/gdmflexiserver
+      sudo chmod ugo+x /usr/bin/gdmflexiserver
     fi
 
     saveProgress
