@@ -2,8 +2,6 @@
 #
 #
 # Todos:
-#  + setup wisker menu
-#  + setup panels
 #  + add note what to do manually
 #
 
@@ -351,6 +349,10 @@ installMaterialtheme(){
       printf "${BLUE}Setup screenlocking and screensaver...${NORMAL}\n"
       printf "#!/bin/bash\nlight-locker-command -l" | sudo tee /usr/local/bin/xflock4
 
+      printf "${BLUE}Setup xfce panels...${NORMAL}\n"
+      wget -O "~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
+      wget -O "~/.config/xfce4/panel/whiskermenu-16.rc" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
+
     fi
 
     saveProgress
@@ -434,7 +436,7 @@ installPScripts(){
 setPresets(){
   printf "${YELLOW}Copy preset compiz profile to desktop...${NORMAL}\n"
   mkdir -p ~/Desktop
-  wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/Compiz.profile"
+  wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/Compiz.profile"
 
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set nemo as default...${NORMAL}\n"
