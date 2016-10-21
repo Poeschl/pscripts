@@ -111,20 +111,11 @@ installArch() {
   printf "${BLUE}Generate fstab...${NORMAL}\n"
   genfstab -Lp /mnt | tee /mnt/etc/fstab
 
-  printf "${BLUE}Config system...${NORMAL}\n"
-  echo #
-  read -p "Hostname: [arch]" -r
-  echo    # move to a new line
-  hostname="arch"
-  if [ ! -z $REPLY ];
-  then
-    hostname=$REPLY
-  fi
-
   saveProgress
 }
 
 setupSystem() {
+  printf "${BLUE}Config system...${NORMAL}\n"
   echo $hostname | tee /mnt/etc/hostname
 
   printf "${BLUE}Setup german keyboard...${NORMAL}\n"
@@ -298,6 +289,15 @@ then
 else
   printf "${RED}No internet available, please check the connectivity and try again!${NORMAL}\n"
   exit 1
+fi
+
+echo #
+hostname="Arch"
+read -p "Hostname of new system: [$hostname]" -r
+echo    # move to a new line
+if [ ! -z $REPLY ];
+then
+  hostname=$REPLY
 fi
 
 partitionHarddrive
