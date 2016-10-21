@@ -24,8 +24,8 @@ This are my installation scripts for fresh linux arch systems. They install my b
 
 ### Important:
 
-* A working internet connection is needed. (`dhcpcd` is your friend)
-* You need to give the root partition more then 10 GiB. The android-sdk is filling your system otherwise.
+* A working internet connection is needed.
+* You need to give the root partition at least 8 GiB for proper space.
 
 ### How to get it:
 

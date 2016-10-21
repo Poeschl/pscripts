@@ -194,7 +194,7 @@ installXfce() {
   git clone https://github.com/fhdk/mugshot.git
   cd mugshot
   makepkg
-  pacman -U mugshot-*.pkg.tar.xz
+  silentpacman -U mugshot-*.pkg.tar.xz
   cd
   rm -rf $mugshotTemp
 
