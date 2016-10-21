@@ -262,6 +262,7 @@ installMaterialtheme(){
   fi
 
   #general settings
+  mkdir -p ~/.config/gtk-3.0/
   printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
 
   saveProgress
@@ -351,8 +352,11 @@ installMaterialtheme(){
       printf "#!/bin/bash\nlight-locker-command -l" | sudo tee /usr/local/bin/xflock4
 
       printf "${BLUE}Setup xfce panels...${NORMAL}\n"
-      wget -O "~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
-      wget -O "~/.config/xfce4/panel/whiskermenu-16.rc" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/whiskermenu-16.rc"
+      cd
+      mkdir -p .config/xfce4/xfconf/xfce-perchannel-xml/
+      mkdir -p .config/xfce4/panel
+      wget -O .config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
+      wget -O .config/xfce4/panel/whiskermenu-16.rc "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/whiskermenu-16.rc"
 
     fi
 
@@ -441,7 +445,7 @@ setPresets(){
 
   if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
     printf "${BLUE}Set nemo as default...${NORMAL}\n"
-    printf "#!/usr/bin/env bash\nexo-preferred-applications\nxfce4-session-logout" | tree "~/Desktop/set_default_apps"
+    printf "#!/usr/bin/env bash\nexo-preferred-applications\nxfce4-session-logout" | tee "Desktop/set_default_apps"
     if [ ! -z "$(pacman -Qs xdg-mime)" ]; then
       sudo xdg-mime default nemo.desktop inode/directory application
     fi
