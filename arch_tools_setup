@@ -86,7 +86,7 @@ installZsh() {
     fi
 
     #set zsh as default
-    sudo chsh -s $(grep /zsh$ /etc/shells | tail -1)
+    sudo chsh -s /usr/bin/zsh $userName
 
     echo "alias sudo='sudo '" | sudo tee -a /etc/zsh/zshenv
 
