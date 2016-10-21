@@ -71,6 +71,7 @@ installZsh() {
     wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
     sudo chmod u+x oh-my-zsh
     sed -i "/env\szsh/d" oh-my-zsh
+    sed -i "/\s*chsh/d" oh-my-zsh
 
     ./oh-my-zsh
     sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
@@ -84,8 +85,8 @@ installZsh() {
       echo "export https_proxy=$https_proxy" | sudo tee -a /etc/zsh/zshenv
     fi
 
-    #set zsh also for root
-    #sudo chsh -s $(grep /zsh$ /etc/shells | tail -1)
+    #set zsh as default
+    sudo chsh -s $(grep /zsh$ /etc/shells | tail -1)
 
     echo "alias sudo='sudo '" | sudo tee -a /etc/zsh/zshenv
 
@@ -181,12 +182,12 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo cinnamon-screensaver
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo cinnamon-screensaver accountsservice
   silentpacaur -S menulibre
 
   printf "${BLUE}Install mugshot...${NORMAL}\n"
   #mugshot is outdated in aur, so manually
-  silentpacman -S python-pexpect accountservice
+  silentpacman -S python-pexpect
   mugshotTemp="mugshot-temp"
   mkdir $mugshotTemp
   cd $mugshotTemp
