@@ -2,9 +2,6 @@
 #
 #
 # Todos:
-#  + Add nemo as filemanager
-#  + add mugshot to edit the user profile (default icon as .face)
-#  + add menulibre for menu editing
 #  + setup wisker menu
 #  + setup panels
 #  + setup shortcuts
@@ -239,9 +236,7 @@ installMaterialtheme(){
       xfconf-query --create -t "string" --channel xsettings --property /Gtk/CursorThemeName --set "Paper"
 
       xfconf-query --create -t "string" --channel xfwm4 --property /general/button_layout --set "|HMC"
-      xfconf-query --create -t "string" --channel xsettings --property /Gtk/ButtonImages --set "false"
-      xfconf-query --create -t "int" --channel xfwm4 --property /general/inactive_opacity --set "90"
-      xfconf-query --create -t "int" --channel xfwm4 --property /general/popup_opacity --set "90"
+      xfconf-query --create -t bool --channel xsettings --property /Gtk/ButtonImages --set false
 
       xfconf-query --create -t "string" --channel xsettings --property /Gtk/FontName --set "Roboto 10"
       xfconf-query --create -t "string" --channel xfwm4 --property /general/title_font --set "Roboto Bold 11"
@@ -259,6 +254,82 @@ installMaterialtheme(){
 
   saveProgress
 }
+
+  configXEnvironment() {
+    printf "${BLUE}Set german keyboard layout for X...${NORMAL}\n"
+    sudo localectl set-x11-keymap de pc105 nodeadkeys
+
+    printf "${BLUE}Download background...${NORMAL}\n"
+    sudo mkdir -p /usr/share/backgrounds/Arch
+    sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark.png" "http://orig05.deviantart.net/e2d8/f/2010/255/2/5/arch_linux_bw_wallpaper_by_thales_img-d2yl9ul.png"
+    sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark-colored.png" "http://orig05.deviantart.net/60cc/f/2016/234/f/2/arch_linux_wallpaper_dark_by_kjeksomanen-d4a70zy.png"
+    sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall.png" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
+
+
+    if [ ! -z "$(pacman -Qs cinnamon)" ]; then
+      printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
+      sudo systemctl enable NetworkManager.service
+
+      if [ -n "$http_proxy" ]; then
+        printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
+        gsettings set org.gnome.system.proxy mode 'manual'
+        echo $http_proxy | while IFS=: read protocol ip port; do
+          gsettings set org.gnome.system.proxy.http host "${protocol}:${ip}"
+          gsettings set org.gnome.system.proxy.http port "$port"
+          gsettings set org.gnome.system.proxy.https host "${protocol}:${ip}"
+          gsettings set org.gnome.system.proxy.https port "$port"
+        done
+      fi
+
+      printf "${BLUE}Config visual appearence...${NORMAL}\n"
+      gsettings set org.nemo.desktop desktop-layout "true::true"
+      gsettings set org.nemo.desktop trash-icon-visible "true"
+      gsettings set org.nemo.desktop volumes-visible "true"
+      gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
+
+      printf "${BLUE}Set background...${NORMAL}\n"
+      gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
+
+      printf "<?xml version=\"1.0\"?>\<!DOCTYPE wallpapers SYSTEM \"cinnamon-wp-list.dtd\">\n
+      <wallpapers>\n
+      <wallpaper deleted="false">\n
+      <name>Arch Linux Dark</name>\n
+      <filename>/usr/share/backgrounds/Arch/arch-linux-dark.png</filename>\n
+      <options>zoom</options>\n
+      <shade_type>solid</shade_type>\n
+      <pcolor>#000000</pcolor>\n
+      <scolor>#000000</scolor>\n
+      </wallpaper>\n
+      <wallpaper deleted="false">\n
+      <name>Arch Linux Dark Colored</name>\n
+      <filename>/usr/share/backgrounds/Arch/arch-linux-dark-colored.png</filename>\n
+      <options>zoom</options>\n
+      <shade_type>solid</shade_type>\n
+      <pcolor>#000000</pcolor>\n
+      <scolor>#000000</scolor>\n
+      </wallpaper>\n
+      <wallpaper deleted="false">\n
+      <name>Arch Linux Wall</name>\n
+      <filename>/usr/share/backgrounds/Arch/arch-linux-wall.png</filename>\n
+      <options>zoom</options>\n
+      <shade_type>solid</shade_type>\n
+      <pcolor>#000000</pcolor>\n
+      <scolor>#000000</scolor>\n
+      </wallpaper>\n
+      </wallpapers>\n" | sudo tee /usr/share/cinnamon-background-properties/linuxarch.xml
+
+    fi
+
+    if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
+      printf "${BLUE}Set background...${NORMAL}\n"
+      xfconf-query --create -t "string" --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-wall.png"
+
+      printf "${BLUE}Remove unkown devices from desktop...${NORMAL}\n"
+      xfconf-query --create -t bool --channel xfce4-desktop --property /desktop-icons/file-icons/show-unknown-removable --set false
+    fi
+
+    saveProgress
+  }
 
 installCompiz() {
   printf "${BLUE}Install Compiz...${NORMAL}\n"
@@ -311,78 +382,6 @@ installAdb() {
   saveProgress
 }
 
-configXEnvironment() {
-  printf "${BLUE}Set german keyboard layout for X...${NORMAL}\n"
-  sudo localectl set-x11-keymap de pc105 nodeadkeys
-
-  printf "${BLUE}Download background...${NORMAL}\n"
-  sudo mkdir -p /usr/share/backgrounds/Arch
-  sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark.png" "http://orig05.deviantart.net/e2d8/f/2010/255/2/5/arch_linux_bw_wallpaper_by_thales_img-d2yl9ul.png"
-  sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-dark-colored.png" "http://orig05.deviantart.net/60cc/f/2016/234/f/2/arch_linux_wallpaper_dark_by_kjeksomanen-d4a70zy.png"
-  sudo wget -O "/usr/share/backgrounds/Arch/arch-linux-wall.png" "http://orig11.deviantart.net/9331/f/2015/256/2/1/archwall_by_localizator-d99ipen.png"
-
-
-  if [ ! -z "$(pacman -Qs cinnamon)" ]; then
-    printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
-    sudo systemctl enable NetworkManager.service
-
-    if [ -n "$http_proxy" ]; then
-      printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
-      gsettings set org.gnome.system.proxy mode 'manual'
-      echo $http_proxy | while IFS=: read protocol ip port; do
-        gsettings set org.gnome.system.proxy.http host "${protocol}:${ip}"
-        gsettings set org.gnome.system.proxy.http port "$port"
-        gsettings set org.gnome.system.proxy.https host "${protocol}:${ip}"
-        gsettings set org.gnome.system.proxy.https port "$port"
-      done
-    fi
-
-    printf "${BLUE}Config visual appearence...${NORMAL}\n"
-    gsettings set org.nemo.desktop desktop-layout "true::true"
-    gsettings set org.nemo.desktop trash-icon-visible "true"
-    gsettings set org.nemo.desktop volumes-visible "true"
-    gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
-
-    printf "${BLUE}Set background...${NORMAL}\n"
-    gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/Arch/arch-linux-dark.png"
-
-    printf "<?xml version=\"1.0\"?>\<!DOCTYPE wallpapers SYSTEM \"cinnamon-wp-list.dtd\">\n
-    <wallpapers>\n
-      <wallpaper deleted="false">\n
-        <name>Arch Linux Dark</name>\n
-        <filename>/usr/share/backgrounds/Arch/arch-linux-dark.png</filename>\n
-        <options>zoom</options>\n
-        <shade_type>solid</shade_type>\n
-        <pcolor>#000000</pcolor>\n
-        <scolor>#000000</scolor>\n
-      </wallpaper>\n
-      <wallpaper deleted="false">\n
-        <name>Arch Linux Dark Colored</name>\n
-        <filename>/usr/share/backgrounds/Arch/arch-linux-dark-colored.png</filename>\n
-        <options>zoom</options>\n
-        <shade_type>solid</shade_type>\n
-        <pcolor>#000000</pcolor>\n
-        <scolor>#000000</scolor>\n
-      </wallpaper>\n
-      <wallpaper deleted="false">\n
-        <name>Arch Linux Wall</name>\n
-        <filename>/usr/share/backgrounds/Arch/arch-linux-wall.png</filename>\n
-        <options>zoom</options>\n
-        <shade_type>solid</shade_type>\n
-        <pcolor>#000000</pcolor>\n
-        <scolor>#000000</scolor>\n
-      </wallpaper>\n
-    </wallpapers>\n" | sudo tee /usr/share/cinnamon-background-properties/linuxarch.xml
-
-  fi
-
-  if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
-    printf "${BLUE}Set background...${NORMAL}\n"
-    xfconf-query --create -t "string" --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image  --set "/usr/share/backgrounds/Arch/arch-linux-wall.png"
-  fi
-
-  saveProgress
-}
 
 cleanup() {
   printf "${BLUE}Remove unused packages and files...${NORMAL}\n"
