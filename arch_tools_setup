@@ -187,7 +187,7 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo menulibre mugshot
 
   saveProgress
 }
@@ -201,18 +201,18 @@ installMaterialtheme(){
   printf "${BLUE}Setup Material Look...${NORMAL}\n"
 
   printf "${BLUE}Setup Material Look for lightdm greeter...${NORMAL}\n"
-  sudo sed -i "/^#user-background/s/(true)*$/true/" /etc/lightdm/lightdm-gtk-greeter.conf
-  sudo sed -i "/^#theme-name/s/(Adapta-Nokto)*$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
-  sudo sed -i "/^#icon-theme-name/s/(Paper)*$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
-  sudo sed -i "/^#font-name/s/(Roboto\s10)*$/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
-  sudo sed -i "/^#background/s/(\/usr\/share\/backgrounds\/Arch\/arch-linux-dark-colored.png)*$/\/usr\/share\/backgrounds\/Arch\/arch-linux-dark-colored.png/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#user-background/s/$/true/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#theme-name/s/$/Adapta-Nokto/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#icon-theme-name/s/$/Paper/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#font-name/s/$/Roboto 10/" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "/^#background/s/$/\/usr\/share\/backgrounds\/Arch\/arch-linux-dark-colored.png/" /etc/lightdm/lightdm-gtk-greeter.conf
 
   sudo sed -i "/^#user-background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
   sudo sed -i "/^#theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
   sudo sed -i "/^#icon-theme-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
   sudo sed -i "/^#font-name/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
   sudo sed -i "/^#background/s/^#//" /etc/lightdm/lightdm-gtk-greeter.conf
-  sudo sed -i "\$aposition = 50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
+  sudo sed -i "\$aposition=50%,center -10,end" /etc/lightdm/lightdm-gtk-greeter.conf
 
   if [ ! -z "$(pacman -Qs cinnamon)" ]; then
     gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
@@ -420,6 +420,8 @@ setPresets(){
     fi
     sudo sed -i "s/thunar.desktop/nemo.desktop"
   fi
+
+  cp /usr/share/icons/Paper/48x48/status/avatar-default.png ~/.xface
 
   saveProgress
 }
