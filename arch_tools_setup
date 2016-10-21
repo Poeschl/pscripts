@@ -182,14 +182,14 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo cinnamon-screensaver accountsservice
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo light-locker
   silentpacaur -S menulibre
 
   printf "${BLUE}Install mugshot...${NORMAL}\n"
   #mugshot is outdated in aur, so manually
-  silentpacman -S python-pexpect
+  silentpacman -S python-pexpect python-dbus python-cairo accountsservice
   mugshotTemp="mugshot-temp"
-  mkdir $mugshotTemp
+  mkdir -p $mugshotTemp
   cd $mugshotTemp
   git clone https://github.com/fhdk/mugshot.git
   cd mugshot
