@@ -351,7 +351,7 @@ installMaterialtheme(){
 
       printf "${BLUE}Setup xfce panels...${NORMAL}\n"
       wget -O "~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
-      wget -O "~/.config/xfce4/panel/whiskermenu-16.rc" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/xfce4-panel.xml"
+      wget -O "~/.config/xfce4/panel/whiskermenu-16.rc" "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/res/whiskermenu-16.rc"
 
     fi
 
