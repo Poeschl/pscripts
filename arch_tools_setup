@@ -71,7 +71,7 @@ installZsh() {
     wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
     sudo chmod u+x oh-my-zsh
     sed -i "/env\szsh/d" oh-my-zsh
-    sed -i "/\s*chsh/d" oh-my-zsh
+    sed -i "/^s*chsh/d" oh-my-zsh
 
     ./oh-my-zsh
     sed -i "/^ZSH_THEME/s/\".*\"/\"gentoo\"/" ~/.zshrc
