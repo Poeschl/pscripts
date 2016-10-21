@@ -187,7 +187,7 @@ installCinnamon() {
 
 installXfce() {
   printf "${BLUE}Install xfce...${NORMAL}\n"
-  silentpacman -S xfce4 xfce4-whiskermenu-plugin
+  silentpacman -S xfce4 xfce4-whiskermenu-plugin nemo
 
   saveProgress
 }
@@ -251,12 +251,11 @@ installMaterialtheme(){
         gsettings set org.gnome.desktop.wm.preferences titlebar-font "Roboto Bold 11"
         gsettings set org.gnome.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
       fi
-
-      #general settings
-      printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
-
     #Todo add panel config from xfconf
   fi
+
+  #general settings
+  printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
 
   saveProgress
 }
@@ -266,10 +265,6 @@ installCompiz() {
   silentpacaur -S compiz
 
   echo "compiz --replace &" | sudo tee -a /etc/xprofile
-
-  printf "${YELLOW}Copy preset compiz profile to desktop...${NORMAL}\n"
-  mkdir -p ~/Desktop
-  wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/Compiz.profile"
 
   saveProgress
 }
@@ -412,6 +407,23 @@ installPScripts(){
   saveProgress
 }
 
+setPresets(){
+  printf "${YELLOW}Copy preset compiz profile to desktop...${NORMAL}\n"
+  mkdir -p ~/Desktop
+  wget -O ~/Desktop/Compiz.profile "https://raw.githubusercontent.com/Poeschl/pscripts/arch-install/Compiz.profile"
+
+  if [ ! -z "$(pacman -Qs xfdesktop)" ]; then
+    printf "${BLUE}Set nemo as default...${NORMAL}\n"
+    printf "#!/usr/bin/env bash\nexo-preferred-applications" | tree "~/Desktop/set_default_apps"
+    if [ ! -z "$(pacman -Qs xdg-mime)" ]; then
+      sudo xdg-mime default nautilus.desktop inode/directory application
+    fi
+    sudo sed -i "s/thunar.desktop/nemo.desktop"
+  fi
+
+  saveProgress
+}
+
 # Use colors, but only if connected to a terminal, and that terminal
 # supports them.
 if which tput >/dev/null 2>&1; then
@@ -506,6 +518,7 @@ fi
 installPackage system-config-printer gnome-keyring
 configXEnvironment
 installMaterialtheme
+setPresets
 
 installPackage gedit
 installPackage eog
