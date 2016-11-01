@@ -90,10 +90,6 @@ installZsh() {
 
     echo "alias sudo='sudo '" | sudo tee -a /etc/zsh/zshenv
 
-    #set alias to prevent official package actions through pacaur.
-    #Personal setting
-    echo "alias pacaur='pacaur --aur '" | sudo tee -a /etc/zsh/zshenv
-
     rm -rf oh-my-zsh
 
   else
