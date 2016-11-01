@@ -279,6 +279,9 @@ installMaterialtheme(){
       printf "${BLUE}Enable NetworkManager...${NORMAL}\n"
       sudo systemctl enable NetworkManager.service
 
+      networkInterface=$(ls /sys/class/net | grep -m1 "en.*")
+      sudo systemctl disable dhcpcd@$networkInterface
+
       if [ -n "$http_proxy" ]; then
         printf "${BLUE}Setup proxy for NetworkManager...${NORMAL}\n"
         gsettings set org.gnome.system.proxy mode 'manual'
