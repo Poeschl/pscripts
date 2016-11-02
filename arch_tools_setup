@@ -151,7 +151,7 @@ configureNTP() {
 
 installBasicServiceDrivers() {
   printf "${BLUE}Install basic services and drivers...${NORMAL}\n"
-  silentpacman -S acpid cups mesa-libgl avahi pulseaudio
+  silentpacman -S acpid cups mesa-libgl avahi pulseaudio ntfs-3g
 
   echo "Enable services"
   sudo systemctl enable acpid.service
