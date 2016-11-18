@@ -19,6 +19,7 @@
  `++:.                           `-/+/
  .`                                 `
 ```
+[![Codacy branch grade](https://img.shields.io/codacy/grade/bd624a532906451d9cdaa6b65f43bdc4/arch-install.svg)](https://www.codacy.com/app/poeschl/pscripts/dashboard?bid=3922198)
 
 This are my installation scripts for fresh linux arch systems. They install my basic needs and development environments.
 
