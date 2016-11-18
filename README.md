@@ -8,6 +8,8 @@
 | )      /\____) || (____/\| ) \ \_____) (___| )         | |   /\____) |
 |/       \_______)(_______/|/   \__/\_______/|/          )_(   \_______)
 ```
+[![Codacy branch grade](https://img.shields.io/codacy/grade/bd624a532906451d9cdaa6b65f43bdc4/master.svg)](https://www.codacy.com/app/poeschl/pscripts/dashboard?bid=3922199)
+
 Those are some of my scripts I use on my linux and cygwin machines. If you want take a look.
 
 To install them on your system I made a oh-my-zsh like installer. To execute it put the next line in the shell.
