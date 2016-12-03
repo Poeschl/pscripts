@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Update package lists
-pacman -Syy
+sudo pacman -Syy
 
 #Update all packages
-pacman -Syu
+sudo pacman -Syu
 
 #Clean up orphans
-pacman -Qdt
+sudo pacman -Qdt
