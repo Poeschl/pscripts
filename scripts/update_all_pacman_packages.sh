@@ -2,8 +2,8 @@
 # Update package lists
 sudo pacman -Syy
 
-#Update all packages
-sudo pacman -Syu
+#Update all packages also from AUR
+pacaur -Syu
 
 #Clean up orphans
 sudo pacman -Qdt
