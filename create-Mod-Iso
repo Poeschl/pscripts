@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+if [ "$(id -u)" != "0" ]; then
+	echo "Sorry, you are not root."
+	exit 1
+fi
+
+startDir=`pwd`
+tmpFolder='./build'
+isoLoopDir="$tmpFolder/loopdir"
+cdDir="$tmpFolder/cd"
+irmodDir="$tmpFolder/irmod"
+
+mkdir -p $isoLoopDir
+mkdir -p $cdDir
+mkdir -p $irmodDir
+
+
+if [ ! -f "$tmpFolder/debian.iso" ]
+then
+    echo "Downloading Debian Iso"
+    wget -O "$tmpFolder/debian.iso" "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.2.1-amd64-netinst.iso"
+fi
+
+mount -o loop "$tmpFolder/debian.iso" $isoLoopDir
+rsync -a -H --exclude=TRANS.TBL "$isoLoopDir/" $cdDir
+umount $isoLoopDir
+
+cd $irmodDir
+gzip -d < ../cd/install.amd/initrd.gz | \
+        cpio --extract --verbose --make-directories --no-absolute-filenames
+cp "$startDir/preseed.cfg" preseed.cfg
+find . | cpio -H newc --create --verbose | \
+        gzip -9 > ../cd/install.amd/initrd.gz
+cd $startDir
+
+cd $cdDir
+md5sum `find -follow -type f` > md5sum.txt
+cd $startDir
+
+cd $cdDir
+genisoimage -o "$startDir/modified.iso" -r -J -no-emul-boot -boot-load-size 4 \
+ -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat .
+cd $startDir
+
+rm -r $tmpFolder
