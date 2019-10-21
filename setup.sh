@@ -149,6 +149,8 @@ gsettings set org.cinnamon.desktop.screensaver screensaver-name 'xscreensaver@ci
 gsettings set org.cinnamon.desktop.screensaver screensaver-webkit-theme 'webkit-stars@cinnamon.org'
 gsettings set org.cinnamon.desktop.screensaver xscreensaver-hack 'binaryring'
 
+gsettings set org.cinnamon favorite-apps "['google-chrome.desktop', 'thunderbird.desktop', 'cinnamon-settings.desktop', 'org.gnome.Terminal.desktop', 'nemo.desktop']"
+
 gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar "false"
 
 
