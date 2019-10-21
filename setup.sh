@@ -146,6 +146,8 @@ gsettings set org.cinnamon.desktop.screensaver screensaver-name 'xscreensaver@ci
 gsettings set org.cinnamon.desktop.screensaver screensaver-webkit-theme 'webkit-stars@cinnamon.org'
 gsettings set org.cinnamon.desktop.screensaver xscreensaver-hack 'binaryring'
 
+gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar "false"
+
 
 if [[ -n $INSTALL_CURA ]]; then
   echo '> Install CURA'
