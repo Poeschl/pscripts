@@ -142,7 +142,9 @@ gsettings set org.nemo.desktop trash-icon-visible "true"
 gsettings set org.nemo.desktop volumes-visible "true"
 gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
 
-
+gsettings set org.cinnamon.desktop.screensaver screensaver-name 'xscreensaver@cinnamon.org'
+gsettings set org.cinnamon.desktop.screensaver screensaver-webkit-theme 'webkit-stars@cinnamon.org'
+gsettings set org.cinnamon.desktop.screensaver xscreensaver-hack 'binaryring'
 
 
 if [[ -n $INSTALL_CURA ]]; then
