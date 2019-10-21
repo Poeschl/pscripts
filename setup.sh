@@ -29,6 +29,7 @@ sudo apt-get -y install git git-lfs git-gui gitk libgnome-keyring-dev
 sudo make --directory=/usr/share/doc/git/contrib/credential/gnome-keyring
 git config --global credential.helper /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
 git config --global core.autocrlf input
+git lfs install
 
 echo '> Install docker'
 sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -100,6 +101,7 @@ sudo apt-get -y install virtualbox-6.0
 
 echo "> Install zsh"
 sudo apt-get -y install zsh fonts-powerline
+pip3 install thefuck
 
 wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 sudo chmod u+x oh-my-zsh
@@ -109,19 +111,20 @@ sed -i "/\tsetup_shell/d" oh-my-zsh
 ./oh-my-zsh
 rm -rf oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"agnoster\"/" ~/.zshrc
-sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu sudo docker docker-compose shrink_path)/" ~/.zshrc
+sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink_path)/" ~/.zshrc
 touch ~/.zshenv
 echo 'PATH=~/.local/bin:${PATH}' > ~/.zshenv
 echo "DEFAULT_USER=${USER}" > ~/.zshenv
 sudo chsh -s /usr/bin/zsh $USER
 sed -i -e '$a\\nprompt_dir () {\n\tprompt_segment blue black "`shrink_path -f`"\n}' ~/.zshrc
 
-echo "> Install cinnamon + theming"
+echo "> Install cinnamon + custom theming + custom settings"
 sudo add-apt-repository -u ppa:snwh/ppa -y
 sudo add-apt-repository -u ppa:tista/adapta -y
 sudo add-apt-repository -u ppa:dyatlov-igor/google-cursors -y
 
 sudo apt-get -y install cinnamon paper-icon-theme fonts-roboto fonts-noto adapta-gtk-theme bibata-oil-cursor-theme
+sudo apt-get -y remove nautilus
 
 gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
 gsettings set org.cinnamon.desktop.interface cursor-theme "Bibata_Oil"
@@ -133,15 +136,14 @@ gsettings set org.cinnamon.settings-daemon.plugins.xsettings menus-have-icons "t
 gsettings set org.cinnamon.desktop.wm.preferences button-layout "appmenu:minimize,maximize,close"
 mkdir -p ~/.config/gtk-3.0/
 printf "[Settings]\ngtk-application-prefer-dark-theme=true" | tee ~/.config/gtk-3.0/settings.ini
-sudo ln -s "/home/${USER}/.themes/" /usr/share/themes/
-chmod +x ~/.themes/Adapta-Nokto/firefox_fix.sh && ~/.themes/Adapta-Nokto/firefox_fix.sh
 
 gsettings set org.nemo.desktop desktop-layout "true::true"
 gsettings set org.nemo.desktop trash-icon-visible "true"
 gsettings set org.nemo.desktop volumes-visible "true"
 gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
 
-sudo apt-get -y remove nautilus
+
+
 
 if [[ -n $INSTALL_CURA ]]; then
   echo '> Install CURA'
@@ -150,6 +152,9 @@ if [[ -n $INSTALL_CURA ]]; then
   sudo wget -O /usr/share/icons/cura.png https://raw.githubusercontent.com/Ultimaker/Cura/master/icons/cura-128.png
   sudo cp resources/Cura.desktop /usr/share/applications/
 fi
+
+ehoc '> Install python'
+sudo apt-get -y python3 pip3
 
 echo '> Clean up'
 sudo apt-get -y autoremove
