@@ -145,6 +145,45 @@ gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
 gsettings set org.cinnamon panels-enabled "['1:0:bottom', '2:1:bottom']"
 gsettings set org.cinnamon enabled-applets "['panel1:right:1:systray@cinnamon.org:0', 'panel1:left:0:menu@cinnamon.org:1', 'panel1:left:2:panel-launchers@cinnamon.org:3', 'panel1:left:3:window-list@cinnamon.org:4', 'panel1:right:2:keyboard@cinnamon.org:5', 'panel1:right:3:notifications@cinnamon.org:6', 'panel1:right:4:removable-drives@cinnamon.org:7', 'panel1:right:5:user@cinnamon.org:8', 'panel1:right:6:network@cinnamon.org:9', 'panel1:right:7:power@cinnamon.org:11', 'panel1:right:9:calendar@cinnamon.org:12', 'panel1:right:8:sound@cinnamon.org:13', 'panel2:left:0:window-list@cinnamon.org:15', 'panel2:right:0:calendar@cinnamon.org:16', 'panel3:left:0:window-list@cinnamon.org:17']"
 
+sudo mkdir -p /usr/share/backgrounds/material/
+sudo wget -O /usr/share/backgrounds/material/material-abstract-red.jpg https://w.wallhaven.cc/full/4x/wallhaven-4xg7gd.jpg
+sudo wget -O /usr/share/backgrounds/material/red-panda.jpg https://w.wallhaven.cc/full/0w/wallhaven-0w2pr6.jpg
+sudo wget -O /usr/share/backgrounds/material/red-pixel.jpg https://w.wallhaven.cc/full/g8/wallhaven-g88dl7.jpg
+
+
+
+sudo rm /usr/share/gnome-background-properties/adwaita.xml
+gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/material/material-abstract-red.jpg"
+printf "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<\!DOCTYPE wallpapers SYSTEM \"cinnamon-wp-list.dtd\">
+<wallpapers>
+   <wallpaper deleted=\"false\">
+      <name>Material Abstract Red</name>
+      <filename>/usr/share/backgrounds/material/material-abstract-red.jpg</filename>
+      <options>zoom</options>
+      <shade_type>solid</shade_type>
+      <pcolor>#a90000</pcolor>
+      <scolor>#000000</scolor>
+   </wallpaper>
+   <wallpaper deleted=\"false\">
+      <name>Red Panda</name>
+      <filename>/usr/share/backgrounds/material/red-panda.jpg</filename>
+      <options>zoom</options>
+      <shade_type>solid</shade_type>
+      <pcolor>#000000</pcolor>
+      <scolor>#000000</scolor>
+   </wallpaper>
+   <wallpaper deleted=\"false\">
+      <name>Ped Pixels</name>
+      <filename>/usr/share/backgrounds/material/red-pixel.jpg</filename>
+      <options>zoom</options>
+      <shade_type>solid</shade_type>
+      <pcolor>#000000</pcolor>
+      <scolor>#000000</scolor>
+   </wallpaper>
+</wallpapers>\n" | sudo tee /usr/share/gnome-background-properties/material.xml > /dev/null
+
+
 gsettings set org.cinnamon.desktop.screensaver screensaver-name 'xscreensaver@cinnamon.org'
 gsettings set org.cinnamon.desktop.screensaver screensaver-webkit-theme 'webkit-stars@cinnamon.org'
 gsettings set org.cinnamon.desktop.screensaver xscreensaver-hack 'binaryring'
