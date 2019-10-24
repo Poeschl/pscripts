@@ -31,6 +31,9 @@ git config --global credential.helper /usr/share/doc/git/contrib/credential/gnom
 git config --global core.autocrlf input
 git lfs install
 
+echo '> Install python'
+sudo apt-get -y python3 pip3
+
 echo '> Install docker'
 sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -115,7 +118,7 @@ sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker do
 touch ~/.zshenv
 echo 'PATH=~/.local/bin:${PATH}' > ~/.zshenv
 echo "DEFAULT_USER=${USER}" > ~/.zshenv
-sudo chsh -s /usr/bin/zsh $USER
+sudo chsh -s /usr/bin/zsh "$USER"
 sed -i -e '$a\\nprompt_dir () {\n\tprompt_segment blue black "`shrink_path -f`"\n}' ~/.zshrc
 
 echo "> Install cinnamon + custom theming + custom settings"
@@ -200,9 +203,6 @@ if [[ -n $INSTALL_CURA ]]; then
   sudo wget -O /usr/share/icons/cura.png https://raw.githubusercontent.com/Ultimaker/Cura/master/icons/cura-128.png
   sudo cp resources/Cura.desktop /usr/share/applications/
 fi
-
-ehoc '> Install python'
-sudo apt-get -y python3 pip3
 
 echo '> Clean up'
 sudo apt-get -y autoremove
