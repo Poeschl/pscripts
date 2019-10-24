@@ -122,7 +122,7 @@ sed -i "/\tsetup_shell/d" oh-my-zsh
 ./oh-my-zsh
 rm -rf oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"agnoster\"/" ~/.zshrc
-sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink_path)/" ~/.zshrc
+sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path)/" ~/.zshrc
 touch ~/.zshenv
 echo 'PATH=~/.local/bin:${PATH}' > ~/.zshenv
 echo "DEFAULT_USER=${USER}" > ~/.zshenv
@@ -152,9 +152,6 @@ gsettings set org.nemo.desktop desktop-layout "true::true"
 gsettings set org.nemo.desktop trash-icon-visible "true"
 gsettings set org.nemo.desktop volumes-visible "true"
 gsettings set org.nemo.desktop show-orphaned-desktop-icons "true"
-
-gsettings set org.cinnamon panels-enabled "['1:0:bottom', '2:1:bottom']"
-gsettings set org.cinnamon enabled-applets "['panel1:right:1:systray@cinnamon.org:0', 'panel1:left:0:menu@cinnamon.org:1', 'panel1:left:2:panel-launchers@cinnamon.org:3', 'panel1:left:3:window-list@cinnamon.org:4', 'panel1:right:2:keyboard@cinnamon.org:5', 'panel1:right:3:notifications@cinnamon.org:6', 'panel1:right:4:removable-drives@cinnamon.org:7', 'panel1:right:5:user@cinnamon.org:8', 'panel1:right:6:network@cinnamon.org:9', 'panel1:right:7:power@cinnamon.org:11', 'panel1:right:9:calendar@cinnamon.org:12', 'panel1:right:8:sound@cinnamon.org:13', 'panel2:left:0:window-list@cinnamon.org:15', 'panel2:right:0:calendar@cinnamon.org:16', 'panel3:left:0:window-list@cinnamon.org:17']"
 
 sudo mkdir -p /usr/share/backgrounds/material/
 sudo wget -O /usr/share/backgrounds/material/material-abstract-red.jpg https://w.wallhaven.cc/full/4x/wallhaven-4xg7gd.jpg
