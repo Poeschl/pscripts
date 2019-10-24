@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=4.3.0
-Name=Cura
-Comment=Ultimaker Cura 4.3.0 High-Performance 3D printing software
-Exec=/usr/local/bin/Ultimaker_Cura-4.3.0.AppImage
-Icon=/usr/share/icons/cura.png
-Terminal=false
-Type=Application
-Categories=Utility;Application;Development;

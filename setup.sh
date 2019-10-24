@@ -67,8 +67,16 @@ if [[ -n $INSTALL_INTELLIJ ]]; then
   fi
   sudo tar -C /opt -xvzf /tmp/idea-install.tar.gz
   sudo mv /opt/idea-* /opt/idea
-  echo -e '\e[32mExecute Intellij once to setup everything! Close it afterwards please\e[39m'
-  /opt/idea/bin/idea.sh
+  printf '[Desktop Entry]
+    Version=1.0
+    Type=Application
+    Name=IntelliJ IDEA Ultimate Edition
+    Icon=/opt/idea/bin/idea.svg
+    Exec="/opt/idea/bin/idea.sh" %f
+    Comment=Capable and Ergonomic IDE for JVM
+    Categories=Development;IDE;
+    Terminal=false
+    StartupWMClass=jetbrains-idea' | sudo tee /usr/share/applications/jetbrains-idea.desktop > /dev/null
 fi
 
 echo "> Install KeepassXc"
@@ -201,7 +209,15 @@ if [[ -n $INSTALL_CURA ]]; then
   sudo wget -O /usr/local/bin/Ultimaker_Cura-4.3.0.AppImage https://software.ultimaker.com/cura/Ultimaker_Cura-4.3.0.AppImage
   sudo chmod +x /usr/local/bin/Ultimaker_Cura-4.3.0.AppImage
   sudo wget -O /usr/share/icons/cura.png https://raw.githubusercontent.com/Ultimaker/Cura/master/icons/cura-128.png
-  sudo cp resources/Cura.desktop /usr/share/applications/
+  printf '[Desktop Entry]
+  Version=4.3.0
+  Name=Cura
+  Comment=Ultimaker Cura 4.3.0 High-Performance 3D printing software
+  Exec=/usr/local/bin/Ultimaker_Cura-4.3.0.AppImage
+  Icon=/usr/share/icons/cura.png
+  Terminal=false
+  Type=Application
+  Categories=Utility;Application;Development;' | sudo tee /usr/share/applications/Cura.desktop > /dev/null
 fi
 
 echo '> Clean up'
