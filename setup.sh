@@ -11,12 +11,7 @@ fi
 
 read -p 'Install Intellij? [yn] ' -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  read -p '[C]ommunity Edition or [U]ltimate Edition ? ' -r
-  if [[ $REPLY =~ ^[Uu]$ ]]; then
-    INSTALL_INTELLIJ=2
-  else 
-    INSTALL_INTELLIJ=1
-  fi
+  INSTALL_INTELLIJ=1
 fi
 
 sudo apt-get update
@@ -60,11 +55,7 @@ sudo apt-get -y install default-jdk
 
 if [[ -n $INSTALL_INTELLIJ ]]; then
   echo '> Install Intellij'
-  if [ $INSTALL_INTELLIJ -eq 1 ]; then
-    wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIC-2019.2.3.tar.gz'
-  elif [ $INSTALL_INTELLIJ -eq 2 ]; then
-    wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIU-2019.2.3.tar.gz'
-  fi
+  wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIU-2019.2.3.tar.gz'
   sudo tar -C /opt -xvzf /tmp/idea-install.tar.gz
   sudo mv /opt/idea-* /opt/idea
   printf '[Desktop Entry]
