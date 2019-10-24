@@ -208,6 +208,12 @@ if [[ -n $INSTALL_CURA ]]; then
   Categories=Utility;Application;Development;' | sudo tee /usr/share/applications/Cura.desktop > /dev/null
 fi
 
+echo '> Setup keystrokes'
+gsettings set org.cinnamon.desktop.keybindings.wm begin-move "[]"
+gsettings set org.cinnamon.desktop.keybindings.wm begin-resize"[]"
+gsettings set org.cinnamon.desktop.keybindings.wm begin-unmaximize "[]"
+gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l', 'XF86ScreenSaver']"
+
 echo '> Clean up'
 sudo apt-get -y autoremove
 
