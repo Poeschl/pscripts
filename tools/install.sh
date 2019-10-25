@@ -62,10 +62,8 @@ main() {
 
   if [ $envExists="0" ];
   then
-    printf "${BLUE}Add stuff to .zshenv ...${NORMAL}\n"
-    export PSCRIPTS=$PSCRIPTS
-    echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
-    echo "export PATH=\$PATH:\$PSCRIPTS/scripts" >> ~/.zshenv
+    printf "${BLUE}Add shell configuration to .zshenv ...${NORMAL}\n"
+    echo "[[ -e ~/.pscripts/shell_extensions/.profile ]] && emulate sh -c 'source ~/.pscripts/shell_extensions/.profile'" >> ~/.zshenv
   fi
 
   printf "${RED}"
