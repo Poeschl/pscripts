@@ -66,6 +66,7 @@ main() {
     export PSCRIPTS=$PSCRIPTS
     echo "export PSCRIPTS=$PSCRIPTS" >> ~/.zshenv
     echo "export PATH=\$PATH:\$PSCRIPTS/scripts" >> ~/.zshenv
+    echo "[[ -e ~/.pscripts/shell_extensions/.profile ]] && emulate sh -c 'source ~/.pscripts/shell_extensions/.profile'" >> ~/.zshenv
   fi
 
   printf "${RED}"
