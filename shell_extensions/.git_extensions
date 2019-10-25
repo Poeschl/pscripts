@@ -1,0 +1,12 @@
+#!/bin/sh
+# Extensions for git
+
+# git search for pattern
+function ggrep () {
+	git grep ${1}
+}
+
+# git search for filename with pattern
+function gfind () {
+	git ls-files | grep ${@:1}
+}
