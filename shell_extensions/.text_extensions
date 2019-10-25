@@ -1,0 +1,12 @@
+#!/bin/sh
+# Helper functions for text manipulation
+
+# append to lines starting with $1 the string $2 in the files passed after $2
+function addtolinesinfiles () {
+	sed -i --"/$1/s/$/$2/" ${@:3}
+}
+
+# replace $1 with $2 in all files passed after $2
+function replaceinfiles() {
+	sed -i -- "s/$1/$2/g" ${@:3}
+}
