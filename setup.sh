@@ -34,7 +34,8 @@ echo '* Virtualbox 6'
 if [[ -n $INSTALL_CURA ]]; then echo '* CURA'; fi
 echo '* zsh + oh-my-zsh'
 echo '* Cinnamon + custom theming'
-echo '* some wallpaper'
+echo '* Some wallpapers'
+echo '* Remove spam and ad launcher icons'
 
 read -p 'Proceed install? [yn]' -r
 if [[ $REPLY =~ ^[Nn]$ ]]; then
@@ -240,6 +241,9 @@ gsettings set org.cinnamon.desktop.keybindings.wm begin-move "[]"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-resize"[]"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-unmaximize "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l', 'XF86ScreenSaver']"
+
+echo '> Remove spam launcher icons'
+sudo rm /usr/share/com.canonical.launcher.amazon.desktop
 
 echo '> Clean up'
 sudo apt-get -y autoremove
