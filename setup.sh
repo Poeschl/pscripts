@@ -14,6 +14,33 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   INSTALL_INTELLIJ=1
 fi
 
+echo 'This script will install the following tools:'
+echo '* Unattended Updates'
+echo '* git'
+echo '* python3'
+echo '* docker'
+echo '* vim'
+echo '* Sublime 3'
+echo '* Java (system latest)'
+if [[ -n $INSTALL_INTELLIJ ]]; then echo '* IntelliJ Ultimate'; fi
+echo '* KeepassXC'
+echo '* Meld'
+echo '* Filezilla'
+echo '* 7zip'
+echo '* VLC'
+echo '* Chrome'
+echo '* Gimp'
+echo '* Virtualbox 6'
+if [[ -n $INSTALL_CURA ]]; then echo '* CURA'; fi
+echo '* zsh + oh-my-zsh'
+echo '* Cinnamon + custom theming'
+echo '* some wallpaper'
+
+read -p 'Proceed install? [yn]' -r
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+  exit 0
+fi
+
 sudo apt-get update
 
 echo '> Enable unattended upgrades'
@@ -63,7 +90,7 @@ if [[ -n $INSTALL_INTELLIJ ]]; then
     Type=Application
     Name=IntelliJ IDEA Ultimate Edition
     Icon=/opt/idea/bin/idea.svg
-    Exec="/opt/idea/bin/idea.sh" %f
+    Exec="/opt/idea/bin/idea.sh" %%f
     Comment=Capable and Ergonomic IDE for JVM
     Categories=Development;IDE;
     Terminal=false
