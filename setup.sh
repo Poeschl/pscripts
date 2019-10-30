@@ -135,10 +135,7 @@ pip3 install thefuck
 
 wget -O oh-my-zsh https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 sudo chmod u+x oh-my-zsh
-sed -i "/env\szsh/d" oh-my-zsh
-sed -i "/^s*chsh/d" oh-my-zsh
-sed -i "/\tsetup_shell/d" oh-my-zsh
-./oh-my-zsh
+./oh-my-zsh --unattended
 rm -rf oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"agnoster\"/" ~/.zshrc
 sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path)/" ~/.zshrc
