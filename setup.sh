@@ -242,6 +242,17 @@ gsettings set org.cinnamon.desktop.keybindings.wm begin-resize"[]"
 gsettings set org.cinnamon.desktop.keybindings.wm begin-unmaximize "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l', 'XF86ScreenSaver']"
 
+echo '> Setup window tiles'
+gsettings set org.cinnamon.muffin tile-maximize true
+
+echo '> Setup sounds'
+gsettings set org.cinnamon.sounds notification-enabled true
+gsettings set org.cinnamon.sounds notification-file '/usr/share/sounds/freedesktop/stereo/bell.oga'
+gsettings set org.cinnamon.sounds plug-enabled true
+gsettings set org.cinnamon.sounds plug-file '/usr/share/sounds/freedesktop/stereo/device-added.oga'
+gsettings set org.cinnamon.sounds unplug-enabled true
+gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/freedesktop/stereo/device-removed.oga'
+
 echo '> Remove spam launcher icons'
 sudo rm /usr/share/com.canonical.launcher.amazon.desktop
 
