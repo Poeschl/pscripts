@@ -37,7 +37,7 @@ echo '* Cinnamon + custom theming'
 echo '* Some wallpapers'
 echo '* Remove spam and ad launcher icons'
 
-read -p 'Proceed install? [yn]' -r
+read -p 'Proceed install? [yn] ' -r
 if [[ $REPLY =~ ^[Nn]$ ]]; then
   exit 0
 fi
@@ -178,8 +178,6 @@ sudo mkdir -p /usr/share/backgrounds/material/
 sudo wget -O /usr/share/backgrounds/material/material-abstract-red.jpg https://w.wallhaven.cc/full/4x/wallhaven-4xg7gd.jpg
 sudo wget -O /usr/share/backgrounds/material/red-panda.jpg https://w.wallhaven.cc/full/0w/wallhaven-0w2pr6.jpg
 sudo wget -O /usr/share/backgrounds/material/red-pixel.jpg https://w.wallhaven.cc/full/g8/wallhaven-g88dl7.jpg
-
-
 
 sudo rm /usr/share/gnome-background-properties/adwaita.xml
 gsettings set org.cinnamon.desktop.background picture-uri  "file:////usr/share/backgrounds/material/material-abstract-red.jpg"
