@@ -55,7 +55,7 @@ git config --global core.autocrlf input
 git lfs install
 
 echo '> Install python'
-sudo apt-get -y python3 pip3
+sudo apt-get -y install python3 python3-pip
 
 echo '> Install docker'
 sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
