@@ -86,6 +86,8 @@ if [[ -n $INSTALL_INTELLIJ ]]; then
   wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIU-2019.2.3.tar.gz'
   sudo tar -C /opt -xvzf /tmp/idea-install.tar.gz
   sudo mv /opt/idea-* /opt/idea
+  sudo chown -R root:sudo /opt/idea
+  sudo chmod -R ug+rw /opt/idea
   printf '[Desktop Entry]
     Version=1.0
     Type=Application
