@@ -255,8 +255,11 @@ gsettings set org.cinnamon.sounds plug-file '/usr/share/sounds/freedesktop/stere
 gsettings set org.cinnamon.sounds unplug-enabled true
 gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/freedesktop/stereo/device-removed.oga'
 
+echo '> Hide gnome settings in cinnamon'
+printf 'NotShowIn=X-Cinnamon;' | sudo tee -a '/usr/share/applications/gnome-session-properties.desktop'
+
 echo '> Remove spam launcher icons'
-sudo rm /usr/share/com.canonical.launcher.amazon.desktop
+sudo rm /usr/share/applications/com.canonical.launcher.amazon.desktop
 
 echo '> Clean up'
 sudo apt-get -y autoremove
