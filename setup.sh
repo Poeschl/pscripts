@@ -47,6 +47,12 @@ sudo apt-get update
 echo '> Enable unattended upgrades'
 sudo apt-get -y install unattended-upgrades
 
+if [ -n "$(sudo dmidecode | grep -i Virtualbox)" ]; then
+  echo '> Install Virtualbox Guest Additions'
+  sudo apt-get -y install build-essential make perl virtualbox-guest-utils virtualbox-guest-dkms
+  sudo adduser $USER vboxsf
+fi
+
 echo '> Install git'
 sudo apt-get -y install git git-lfs git-gui gitk libgnome-keyring-dev
 sudo make --directory=/usr/share/doc/git/contrib/credential/gnome-keyring
@@ -123,13 +129,15 @@ sudo dpkg -i /tmp/google-chrome-stable_current_amd64.deb
 echo '> Install Gimp'
 sudo apt-get -y install gimp 
 
+if [ -z "$(sudo dmidecode | grep -i Virtualbox)" ]; then
 echo "> Install Virtualbox 6"
-sudo apt-get -y remove virtualbox virtualbox-qt virtualbox-dkms
-wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
-sudo apt-get update
-sudo apt-get -y install virtualbox-6.0
+  sudo apt-get -y remove virtualbox virtualbox-qt virtualbox-dkms
+  wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+  wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
+  sudo apt-get update
+  sudo apt-get -y install virtualbox-6.0
+fi
 
 echo "> Install zsh"
 sudo apt-get -y install zsh fonts-powerline
