@@ -248,8 +248,7 @@ fi
 
 echo '> Setup keystrokes'
 gsettings set org.cinnamon.desktop.keybindings.wm begin-move "[]"
-gsettings set org.cinnamon.desktop.keybindings.wm begin-resize"[]"
-gsettings set org.cinnamon.desktop.keybindings.wm begin-unmaximize "[]"
+gsettings set org.cinnamon.desktop.keybindings.wm begin-resize "[]"
 gsettings set org.cinnamon.desktop.keybindings.media-keys screensaver "['<Super>l', 'XF86ScreenSaver']"
 
 echo '> Setup window tiles'
@@ -267,10 +266,10 @@ echo '> Hide gnome settings in cinnamon'
 printf 'NotShowIn=X-Cinnamon;' | sudo tee -a '/usr/share/applications/gnome-session-properties.desktop'
 
 echo '> Remove spam launcher icons'
-sudo rm /usr/share/applications/com.canonical.launcher.amazon.desktop
+sudo rm /usr/share/applications/com.canonical.launcher.amazon.desktop || true
 
 echo '> Clean up'
 sudo apt-get -y autoremove
 
 echo ''
-echo '> Please logout and login again to see the new theming and use docker!'
+echo '> Please restart to switch environment and use docker'
