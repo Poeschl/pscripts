@@ -60,8 +60,10 @@ git config --global credential.helper /usr/share/doc/git/contrib/credential/gnom
 git config --global core.autocrlf input
 git lfs install
 
-echo '> Install python'
-sudo apt-get -y install python3 python3-pip
+echo '> Install python3 + 3.8'
+sudo apt-get -y install python3 python3-pip python3-venv software-properties-common
+sudo add-apt-repository -u ppa:deadsnakes/ppa -y
+sudo apt-get -y install python3.8 python3.8-venv
 
 echo '> Install docker'
 sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
