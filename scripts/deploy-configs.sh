@@ -4,9 +4,9 @@ set -e
 # Deploy the configs on this machine to another machine via scp
 # Deploy config on another server over scp
 # $1 destination or user@destination
-# exampe: cfgdeploy user@myserver
+# exampe: deploy-configs user@myserver
 
-CONFIG_LIST=".bashrc .vimrc .vim/colors/skittles_dark_cw.vim .tmux.conf"
+CONFIG_LIST=".zshrc .gitconf .tmux.conf.local"
 
 if [ "$#" -ne 1 ]; then
   echo "Usage: $0 user@host" >&2
