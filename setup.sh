@@ -171,12 +171,18 @@ sudo chmod u+x oh-my-zsh
 ./oh-my-zsh --unattended
 rm -rf oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"agnoster\"/" ~/.zshrc
-sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path)/" ~/.zshrc
+sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path tmux)/" ~/.zshrc
 touch ~/.zshenv
 echo 'PATH=~/.local/bin:${PATH}' > ~/.zshenv
 echo "DEFAULT_USER=${USER}" > ~/.zshenv
 sudo chsh -s /usr/bin/zsh "$USER"
 sed -i -e '$a\\nprompt_dir () {\n\tprompt_segment blue black "`shrink_path -f`"\n}' ~/.zshrc
+
+echo "> Install tmux"
+git clone https://github.com/gpakosz/.tmux.git
+ln -s -f .tmux/.tmux.conf
+wget -O ./.tmux.conf.local https://raw.githubusercontent.com/Poeschl/pscripts/ubuntu-setup/config/.tmux.conf.local
+sed -i -e '$a\\nexport ZSH_TMUX_AUTOSTART=true' ~/.zshrc
 
 echo "> Install cinnamon + custom theming + custom settings"
 sudo add-apt-repository -u ppa:snwh/ppa -y
@@ -290,6 +296,9 @@ printf 'NotShowIn=X-Cinnamon;' | sudo tee -a '/usr/share/applications/gnome-sess
 
 echo '> Remove spam launcher icons'
 sudo rm /usr/share/applications/com.canonical.launcher.amazon.desktop || true
+
+echo '> Install pscripts'
+sh -c "$(wget https://raw.githubusercontent.com/Poeschl/pscripts/master/tools/install.sh -O -)"
 
 echo '> Clean up'
 sudo apt-get -y autoremove
