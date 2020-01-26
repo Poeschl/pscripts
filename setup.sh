@@ -85,6 +85,27 @@ sudo apt-get -y install apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 sudo apt-get update
 sudo apt-get -y install sublime-text
+mkdir -p "${HOME}/.config/sublime-text-3/Packages/User"
+printf '{
+	"bootstrapped": false,
+	"installed_packages":
+	[
+		"A File Icon",
+		"Dockerfile Syntax Highlighting",
+		"MarkdownPreview",
+		"Marked App Menu",
+		"Material Theme",
+		"Package Control",
+		"Pretty JSON"
+	]
+}' | tee "${HOME}/.config/sublime-text-3/Packages/User/Package Control.sublime-settings" > /dev/null
+mkdir -p "${HOME}/.config/sublime-text-3/Installed Packages/"
+wget -O "${HOME}/.config/sublime-text-3/Installed Packages/Package Control.sublime-package" 'https://packagecontrol.io/Package Control.sublime-package'
+printf '{
+    "color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
+    "material_theme_accent_red": true,
+    "theme": "Material-Theme.sublime-theme"
+}' | tee "${HOME}/.config/sublime-text-3/Packages/User/Preferences.sublime-settings" > /dev/null
 
 echo '> Install latest Java'
 sudo apt-get -y install default-jdk
