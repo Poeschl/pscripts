@@ -185,7 +185,9 @@ git clone https://github.com/gpakosz/.tmux.git
 ln -s -f .tmux/.tmux.conf
 wget -O ./.tmux.conf.local https://raw.githubusercontent.com/Poeschl/pscripts/ubuntu-setup/config/.tmux.conf.local
 sed -i "/^plugins=(.*/s/)/ tmux)/" ~/.zshrc
-sed -i -e '$a\\nexport ZSH_TMUX_AUTOSTART=true' ~/.zshrc
+sed -i '/^export ZSH=".*"/aexport ZSH_TMUX_AUTOSTART=true' ~/.zshrc
+
+
 
 echo "> Install cinnamon + custom theming + custom settings"
 sudo add-apt-repository -u ppa:snwh/ppa -y
