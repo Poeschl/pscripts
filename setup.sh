@@ -171,17 +171,20 @@ sudo chmod u+x oh-my-zsh
 ./oh-my-zsh --unattended
 rm -rf oh-my-zsh
 sed -i "/^ZSH_THEME/s/\".*\"/\"agnoster\"/" ~/.zshrc
-sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path tmux)/" ~/.zshrc
+sed -i "/^plugins/s/(.*)/(gitfast gradle mvn pip python ubuntu thefuck docker docker-compose shrink-path)/" ~/.zshrc
 touch ~/.zshenv
 echo 'PATH=~/.local/bin:${PATH}' > ~/.zshenv
 echo "DEFAULT_USER=${USER}" > ~/.zshenv
+echo "EDITOR=vim" > ~/.zshenv
 sudo chsh -s /usr/bin/zsh "$USER"
 sed -i -e '$a\\nprompt_dir () {\n\tprompt_segment blue black "`shrink_path -f`"\n}' ~/.zshrc
 
 echo "> Install tmux"
+sudo apt-get -y install tmux
 git clone https://github.com/gpakosz/.tmux.git
 ln -s -f .tmux/.tmux.conf
 wget -O ./.tmux.conf.local https://raw.githubusercontent.com/Poeschl/pscripts/ubuntu-setup/config/.tmux.conf.local
+sed -i "/^plugins=(.*/s/)/ tmux)/" ~/.zshrc
 sed -i -e '$a\\nexport ZSH_TMUX_AUTOSTART=true' ~/.zshrc
 
 echo "> Install cinnamon + custom theming + custom settings"
