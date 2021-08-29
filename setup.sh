@@ -190,9 +190,8 @@ sed -i '/^export ZSH=".*"/aexport ZSH_TMUX_AUTOSTART=true' ~/.zshrc
 
 echo "> Install cinnamon + custom theming + custom settings"
 sudo add-apt-repository -u ppa:snwh/ppa -y
-sudo add-apt-repository -u ppa:dyatlov-igor/google-cursors -y
 
-sudo apt-get -y install cinnamon paper-icon-theme fonts-roboto fonts-noto bibata-oil-cursor-theme
+sudo apt-get -y install cinnamon paper-icon-theme fonts-roboto fonts-noto
 sudo apt-get -y remove nautilus
 
 wget -O /tmp/adapta-color.tar https://github.com/ivankra/adapta-gtk-theme-colorpack/releases/download/3.94.0.149-colorpack/adapta-gtk-theme-colorpack_3.94.0.149.tar
@@ -202,7 +201,7 @@ sudo mv Adapta-Red /usr/share/themes/
 sudo mv Adapta-Red-Nokto /usr/share/themes/
 
 gsettings set org.cinnamon.desktop.interface icon-theme 'Paper'
-gsettings set org.cinnamon.desktop.interface cursor-theme "Bibata_Oil"
+#gsettings set org.cinnamon.desktop.interface cursor-theme "Bibata_Oil"
 gsettings set org.cinnamon.desktop.interface gtk-theme "Adapta-Red-Nokto"
 gsettings set org.cinnamon.desktop.wm.preferences theme "Adapta-Red-Nokto"
 gsettings set org.cinnamon.theme name "Adapta-Red-Nokto"
