@@ -54,9 +54,7 @@ if [ -n "$(sudo dmidecode | grep -i Virtualbox)" ]; then
 fi
 
 echo '> Install git'
-sudo apt-get -y install git git-lfs git-gui gitk libgnome-keyring-dev
-sudo make --directory=/usr/share/doc/git/contrib/credential/gnome-keyring
-git config --global credential.helper /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
+sudo apt-get -y install git git-lfs git-gui gitk
 git config --global core.autocrlf input
 git lfs install
 
