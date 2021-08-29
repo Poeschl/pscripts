@@ -54,7 +54,9 @@ if [ -n "$(sudo dmidecode | grep -i Virtualbox)" ]; then
 fi
 
 echo '> Install git'
-sudo apt-get -y install git git-lfs git-gui gitk
+sudo apt-get -y install git git-lfs git-gui gitk libsecret-1-0 libsecret-1-dev
+sudo make --directory=/usr/share/doc/git/contrib/credential/libsecret
+git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
 git config --global core.autocrlf input
 git lfs install
 
