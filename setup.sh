@@ -60,10 +60,10 @@ git config --global credential.helper /usr/share/doc/git/contrib/credential/gnom
 git config --global core.autocrlf input
 git lfs install
 
-echo '> Install python3 + 3.8'
+echo '> Install python3 + 3.9'
 sudo apt-get -y install python3 python3-pip python3-venv software-properties-common
 sudo add-apt-repository -u ppa:deadsnakes/ppa -y
-sudo apt-get -y install python3.8 python3.8-venv
+sudo apt-get -y install python3.9 python3.9-venv
 
 echo '> Install docker'
 sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -73,7 +73,7 @@ sudo apt-get update
 sudo apt-get -y install docker-ce docker-ce-cli
 sudo usermod -aG docker "$USER"
 echo '> Install docker-compose'
-sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
 echo '> Install VIM'
@@ -112,7 +112,7 @@ sudo apt-get -y install default-jdk
 
 if [[ -n $INSTALL_INTELLIJ ]]; then
   echo '> Install Intellij'
-  wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIU-2019.2.3.tar.gz'
+  wget -O /tmp/idea-install.tar.gz 'https://download.jetbrains.com/idea/ideaIU-2021.2.1.tar.gz'
   sudo tar -C /opt -xvzf /tmp/idea-install.tar.gz
   sudo mv /opt/idea-* /opt/idea
   sudo chown -R root:sudo /opt/idea
@@ -266,14 +266,14 @@ gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar "false"
 
 if [[ -n $INSTALL_CURA ]]; then
   echo '> Install CURA'
-  sudo wget -O /usr/local/bin/Ultimaker_Cura-4.3.0.AppImage https://software.ultimaker.com/cura/Ultimaker_Cura-4.3.0.AppImage
-  sudo chmod +x /usr/local/bin/Ultimaker_Cura-4.3.0.AppImage
+  sudo wget -O /usr/local/bin/Ultimaker_Cura-4.10.0.AppImage https://software.ultimaker.com/cura/Ultimaker_Cura-4.10.0.AppImage
+  sudo chmod +x /usr/local/bin/Ultimaker_Cura-4.10.0.AppImage
   sudo wget -O /usr/share/icons/cura.png https://raw.githubusercontent.com/Ultimaker/Cura/master/icons/cura-128.png
   printf '[Desktop Entry]
-  Version=4.3.0
+  Version=4.10.0
   Name=Cura
-  Comment=Ultimaker Cura 4.3.0 High-Performance 3D printing software
-  Exec=/usr/local/bin/Ultimaker_Cura-4.3.0.AppImage
+  Comment=Ultimaker Cura 4.10.0 High-Performance 3D printing software
+  Exec=/usr/local/bin/Ultimaker_Cura-4.10.0.AppImage
   Icon=/usr/share/icons/cura.png
   Terminal=false
   Type=Application
